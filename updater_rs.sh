@@ -2,6 +2,11 @@
 
 ##--Method for manually inputting backslash characters using xte in GRR---#
 ##-- Fixes GRR bug on Pythagoras  -- mct 2012/10/19
+
+function interval {
+	echo "scale=2;$1*$RANDOM / 32767" | bc
+}
+
 function charbychar {
 	phrase=$(echo $1 | sed -e 's/\//\\/g')
 
@@ -11,78 +16,47 @@ function charbychar {
 	    chr=$( echo $phrase | awk -F "" {'print $'$x''} )
 	    x=$(( $x + 1 ))
 	    xte "str $chr"
+	    sleep $(interval 0.5)
 	done
 }
 
-#wine $HOME/.wine/drive_c/Program\ Files/Genetics/GRR/GRR.exe &>/dev/null &
-wine $HOME/.wine/drive_c/Program\ Files\ \(x86\)/Genetics/GRR/GRR.exe &> /dev/null &
-grrpid=$!
-
-sleep 5
+#window="updater_rs.sh - /home/memo/Desktop/personal/upgrader_rs - Geany"
+window="RuneScape"
 
 # grr position
-xpos=`xwininfo -name 'RuneScape' | grep Absol | awk '{ print $4 }' | head -1`
-ypos=`xwininfo -name 'RuneScape' | grep Absol | awk '{ print $4 }' | tail -1`
+xpos=`xwininfo -name "$window" | grep Absol | awk '{ print $4 }' | head -1`
+ypos=`xwininfo -name "$window" | grep Absol | awk '{ print $4 }' | tail -1`
+width=`xwininfo -name "$window" | grep Width | awk '{ print $NF }' | head -1`
+height=`xwininfo -name "$window" | grep Height | awk '{ print $NF }' | head -1`
 
-# tick other relatives
-xte "mousemove `expr $xpos + 542` `expr $ypos + 193`" "mouseclick 1" "sleep 1"
+center_x=$(( ($width / 2) + $xpos ))
+center_y=$(( ($height / 2) + $ypos ))
 
-# change the title
-xte "mousemove `expr $xpos + 300` `expr $ypos + 50`"  "mouseclick 1" "sleep 1" "str $project" \
-    "sleep 1" "mousemove `expr $xpos + 300` `expr $ypos + 205`" "mouseclick 1" "sleep 1"
+echo "[$xpos $ypos] [$width $height] [$center_x $center_y]"
 
-# load pedin
-xte "mousemove `expr $xpos + 600` `expr $ypos + 235`" "mouseclick 1" "sleep 1" 
-charbychar $pedin ###HOTFIX: Enter pedin char at a time
-xte    "sleep 1" "keydown Alt_L" "key O" "keyup Alt_L" "sleep 1"
+function random_gen {
+	echo $(( (($RANDOM - 16383) /( $1 / 10))  ))
+}
+function random_x {
+	echo $(random_gen $width)
+}
 
-sleep 2
+function random_y {
+	echo $(random_gen $height)
+}
 
-# load dialog
-dxpos=`xwininfo -name 'Load Pedigree File' | grep Absol | awk '{ print $4 }' | head -1`
-dypos=`xwininfo -name 'Load Pedigree File' | grep Absol | awk '{ print $4 }' | tail -1`
-xte "mousemove `expr $dxpos + 23`  `expr $dypos + 30`"  "mouseclick 1" "sleep 1" \
-    "mousemove `expr $dxpos + 100` `expr $dypos + 210`" "mouseclick 1" "sleep 1"
-sleep 10
+#exit
 
-# drag-select all points
-xte "mousemove `expr $xpos + 75`  `expr $ypos + 85`"  "mousedown 1" "sleep 1" \
-    "mousemove `expr $xpos + 480` `expr $ypos + 330`" "mouseup 1" "sleep 1"
+while [ 0 ];do
+#	echo "RANDX:`random_x`, RAND_Y: `random_y`"
+#	sleep 1
+	xte "mousemove `expr $center_x + $(random_x)` `expr $center_y + $(random_y)`" "mouseclick 1" &
+	mousepid=$!
+	
+	charbychar "1 2 3 4 5"
+	int=$(interval 4)
+	echo $int
+	sleep $int
 
-# IBS Details dialog
-dxpos=`xwininfo -name 'IBS Details' | grep Absol | awk '{ print $4 }' | head -1`
-dypos=`xwininfo -name 'IBS Details' | grep Absol | awk '{ print $4 }' | tail -1`
-xte "mousemove `expr $dxpos + 400`  `expr $dypos + 195`"  "mouseclick 1" "sleep 1"
-charbychar $pedtxt ###HOTFIX: Enter pedtxt char at a time
-xte "sleep 1" "keydown Alt_L" "key S" "keyup Alt_L" "sleep 1" \
-    "mousemove `expr $dxpos + 500`  `expr $dypos + 195`" "mouseclick 1" "sleep 1"
-
-# we want to fix the axis so it is easier to interpret
-# ajm 08/04/11
-
-# click options
-xte "mousemove `expr $xpos + 600` `expr $ypos + 300`" "mouseclick 1" "sleep 1"
-
-# find options dialog
-oxpos=`xwininfo -name 'Options' | grep Absol | awk '{ print $4 }' | head -1`
-oypos=`xwininfo -name 'Options' | grep Absol | awk '{ print $4 }' | tail -1`
-
-# click fix axis
-xte "mousemove `expr $oxpos + 20` `expr $oypos + 125`" "mouseclick 1" "sleep 1"
-
-# click shade possible region
-xte "mousemove `expr $oxpos + 20` `expr $oypos + 150`" "mouseclick 1" "sleep 1"
-
-# click ok
-xte "mousemove `expr $oxpos + 160` `expr $oypos + 260`" "mouseclick 1" "sleep 1"
-
-
-# screenshot
-import -window `xwininfo -name 'Allele Sharing Quality Control' | grep "xwininfo" | awk '{ print $4 }'` $pedpng
-sleep 1
-
-# quit grr
-xte "mousemove `expr $xpos + 600` `expr $ypos + 360`" "mouseclick 1"
-
-#kill $grrpid
-
+	wait $mousepid
+done
