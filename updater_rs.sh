@@ -15,8 +15,8 @@ function charbychar {
 	do
 	    chr=$( echo $phrase | awk -F "" {'print $'$x''} )
 	    x=$(( $x + 1 ))
-	    xte "str $chr"
-	    sleep $(interval 0.5)
+	    xdotool key $chr
+	    sleep $(interval 1)
 	done
 }
 
@@ -35,7 +35,7 @@ center_y=$(( ($height / 2) + $ypos ))
 echo "[$xpos $ypos] [$width $height] [$center_x $center_y]"
 
 function random_gen {
-	echo $(( (($RANDOM - 16383) /( $1 / 10))  ))
+	echo $(( (($RANDOM - 16383) /( $1 / 15))  ))
 }
 function random_x {
 	echo $(random_gen $width)
@@ -53,8 +53,9 @@ while [ 0 ];do
 	xte "mousemove `expr $center_x + $(random_x)` `expr $center_y + $(random_y)`" "mouseclick 1" &
 	mousepid=$!
 	
-	charbychar "1 2 3 4 5"
-	int=$(interval 4)
+	charbychar "12345678"
+	
+	int=$(interval 2)
 	echo $int
 	sleep $int
 
