@@ -12,12 +12,12 @@ topleft=`xwininfo -name "$window" | grep Corners | awk '{ print $2 }'`
 
 
 # Image location
-screen1="screenshot1.jpg"
-screen2="screenshot2.jpg"
+screen1="earrly.jpg"
+screen2="late.jpg"
 
 
 #Crop command
-crop="-crop $widthx$height$topleft"
+crop="-crop $width"x"$height$topleft"
 
 
 # Sleep random interval
@@ -43,14 +43,18 @@ function charbychar {
 
 
 # Search for movement
-function detectMove()
+function detectMove(){
+	rm $screen1 $screen2
+	
 	import -window root $crop -colors 2 $screen1
-	sleep(0.1)
+	sleep 0.1
 	import -window root $crop -colors 2 $screen2
 	
 	# Abstract OpenCV script to diff photos, dilate them, return largest blob coord
 	# If nothing found it returns "NOPE"
-	echo $(python dilate_XY $screen1 $screen2)
+	res=$(python dilate_XY.py $screen1 $screen2 10 1)
+	echo $res
+	echo $res >&2
 }
 
 
@@ -59,14 +63,14 @@ function movement(){
 	res="NOPE"
 	while [ "$res" = "NOPE" ]; do
 		res=$(detectMove)
-		sleep(0.5)  # check for movement every 1/2 second
+		sleep 0.5  # check for movement every 1/2 second
 	done
 
 	XX=$(echo $res | awk '{print $1}')
 	YY=$(echo $res | awk '{print $2}')
 	
-	xte "mousemove $XX $YY mouseclick 1" &
-	mousepid=$!
+	xte "mousemove `expr $XX` `expr $YY`" "mouseclick 1"
+#	mousepid=$!
 	
 	charbychar "12435678"
 
@@ -74,7 +78,7 @@ function movement(){
 	echo -en "\r$int" >&2;
 	sleep $int
 
-	wait $mousepid
+#	wait $mousepid
 }
 
 
