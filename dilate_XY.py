@@ -45,20 +45,20 @@ def whitePix(image):
 	return -1
 
 #ret,thresh = cv2.threshold(fgmask,0,100,0)
-#image, contours = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+#image, contours = cv2.findContours(fgmask,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
 
 
-X_Y = whitePix(fgmask)
-if X_Y==-1:
+Y_X = whitePix(fgmask)
+if Y_X==-1:
 	print "NOPE"
 else:
-	print X_Y[0], X_Y[1]
+	print Y_X[0], Y_X[1]
 
-#cv2.imshow("Frame",thresh)
-# Listen for ESC key
+#cv2.imshow("Frame",fgmask)
+## Listen for ESC key
 #c = cv2.waitKey(0) % 0x100
 #if c == 27:
-#	cv2.destroyAllWindows()
+	#cv2.destroyAllWindows()
 
 
 
