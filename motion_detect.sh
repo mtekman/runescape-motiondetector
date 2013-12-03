@@ -47,14 +47,17 @@ function charbychar {
 
 # Search for movement
 function detectMove(){
-	rm $screen1 $screen2
+	dirs=imgs/`date +%H_%M_%S`
+	mkdir -p $dirs
+	mv $screen1 $dirs/
+	mv $screen2 $dirs/
 	
 	import -window root $crop $coloropts $screen1
 	sleep 0.1
 	import -window root $crop $coloropts $screen2
 	
-	# Abstract OpenCV script to diff photos, dilate them, return largest blob coord
-	# If nothing found it returns "NOPE"
+	# OpenCV script to diff photos, return largest blob coord
+	# If nothing found it returns "0 0"
 	res_XY=$($skeletonDect $screen1 $screen2 10)
 	echo $res_XY
 	echo "[x y] = $res_XY" >&2
