@@ -159,6 +159,10 @@ int main(int argc, char ** argv)
             }
         }
 
+        Vec3b &centre = fgmask.at<Vec3b>(max.pt.y, max.pt.x);
+        centre.val[0] = centre.val[1] = 0;
+        centre.val[2] = uchar(255);
+
         imshow("Frame",fgmask);
         waitKey(0);
     }
