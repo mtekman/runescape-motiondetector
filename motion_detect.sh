@@ -2,6 +2,7 @@
 
 # Window position
 window="RuneScape"
+skeletonDect="./skeletonDetect-build/skeletonDetect"
 
 xpos=`xwininfo -name "$window" | grep Absol | awk '{ print $4 }' | head -1`
 ypos=`xwininfo -name "$window" | grep Absol | awk '{ print $4 }' | tail -1`
@@ -18,6 +19,8 @@ screen2="late.jpg"
 
 #Crop command
 crop="-crop $width"x"$height$topleft"
+#Color Opts
+coloropts="-colors 100"
 
 
 # Sleep random interval
@@ -46,22 +49,22 @@ function charbychar {
 function detectMove(){
 	rm $screen1 $screen2
 	
-	import -window root $crop -colors 2 $screen1
+	import -window root $crop $coloropts $screen1
 	sleep 0.1
-	import -window root $crop -colors 2 $screen2
+	import -window root $crop $coloropts $screen2
 	
 	# Abstract OpenCV script to diff photos, dilate them, return largest blob coord
 	# If nothing found it returns "NOPE"
-	res=$(python dilate_XY.py $screen1 $screen2 10 1)
-	echo $res
-	echo $res >&2
+	res_XY=$($skeletonDect $screen1 $screen2 10)
+	echo $res_XY
+	echo "[x y] = $res_XY" >&2
 }
 
 
 
 function movement(){
-	res="NOPE"
-	while [ "$res" = "NOPE" ]; do
+	res="0 0"
+	while [ "$res" = "0 0" ]; do
 		res=$(detectMove)
 		sleep 0.5  # check for movement every 1/2 second
 	done
