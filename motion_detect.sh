@@ -40,7 +40,7 @@ function charbychar {
 	    chr=$( echo $phrase | awk -F "" {'print $'$x''} )
 	    x=$(( $x + 1 ))
 	    xdotool key $chr
-	    sleep $(interval 1)
+	    sleep $(interval 0.1)
 	done
 }
 
@@ -58,7 +58,7 @@ function detectMove(){
 	
 	# OpenCV script to diff photos, return largest blob coord
 	# If nothing found it returns "0 0"
-	res_XY=$($skeletonDect $screen1 $screen2 10)
+	res_XY=$($skeletonDect $screen1 $screen2)
 	echo $res_XY
 	echo "[x y] = $res_XY" >&2
 }
@@ -75,16 +75,16 @@ function movement(){
 	XX=$(echo $res | awk '{print $1}')
 	YY=$(echo $res | awk '{print $2}')
 	
-	xte "mousemove `expr $XX` `expr $YY`" "mouseclick 1"
-#	mousepid=$!
+	xte "mousemove `expr $xpos + $XX` `expr $ypos + $YY`" "mouseclick 1" &
+	mousepid=$!
 	
-	charbychar "12435678"
+	charbychar "111112111111111111111111"
 
 	int=$(interval 2)
 	echo -en "\r$int" >&2;
 	sleep $int
 
-#	wait $mousepid
+	wait $mousepid
 }
 
 
