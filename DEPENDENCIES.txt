@@ -1,0 +1,6 @@
+bc
+imagemagick
+opencv
+xautomation
+xdotool
+xte
