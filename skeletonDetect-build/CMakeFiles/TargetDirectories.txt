@@ -1,1 +1,0 @@
-/media/NO_MANS_LAND/REPOS/personal/upgrader_rs/skeletonDetect-build/CMakeFiles/skeletonDetect.dir
