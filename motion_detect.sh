@@ -2,7 +2,7 @@
 
 # Window position
 window="RuneScape"
-skeletonDect="./skeletonDetect-build/skeletonDetect"
+skeletonDect="./skeletonDetect/skeletonDetect"
 
 xpos=`xwininfo -name "$window" | grep Absol | awk '{ print $4 }' | head -1`
 ypos=`xwininfo -name "$window" | grep Absol | awk '{ print $4 }' | tail -1`
