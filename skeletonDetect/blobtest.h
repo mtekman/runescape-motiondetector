@@ -46,7 +46,7 @@ public:
     }
 
     void debugStats(Vec3b neigh, Vec3b pix, int k, int xpos, int ypos, float diam){
-        fprintf(stderr,"P%02d@[%d,%d]\trad:%3f", k, xpos, ypos, diam);
+        fprintf(stderr,"\nP%02d@[%4d,%4d]\trad:%.2f", k, xpos, ypos, diam);
 
         fprintf(stderr," {RGB=[%3d,%3d,%3d]",                             //Print RGB for center
                 int(pix.val[2]),

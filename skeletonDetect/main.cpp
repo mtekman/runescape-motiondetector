@@ -46,13 +46,11 @@ public:
         case 5:
             topleft_x = atoi(argv[1]), topleft_y = atoi(argv[2]), width = atoi(argv[3]), height = atoi(argv[4]);
             break;
-            // THIS NEEDS TO REPEAT UNTIL TERMINATED!
           case 6:
             //positions with debug flag
             debug = true;
             topleft_x = atoi(argv[1]), topleft_y = atoi(argv[2]), width = atoi(argv[3]), height = atoi(argv[4]);
             break;
-            // THIS NEEDS TO REPEAT UNTIL TERMINATED!
         default:
             usage(); break;
         }
@@ -61,7 +59,7 @@ public:
 
 
 static int populateMat(Mat &img, Display *disp, Window &root,
-                       int &x, int &y, int &width, int& height)
+                       int &x, int &y, int &width, int& height, bool &debug)
 {
     XImage* xImageSample = XGetImage(disp, root, x, y, width, height, AllPlanes, ZPixmap);
 
@@ -73,7 +71,9 @@ static int populateMat(Mat &img, Display *disp, Window &root,
     IplImage *iplImage = cvCreateImageHeader(
                 cvSize(xImageSample->width, xImageSample->height),
                 IPL_DEPTH_8U,
-                xImageSample->bits_per_pixel/8);
+                3);
+//                xImageSample->data
+//                xImageSample->bits_per_pixel/8);
 
     iplImage->widthStep = xImageSample->bytes_per_line;
     if(xImageSample->data != NULL)
@@ -82,8 +82,10 @@ static int populateMat(Mat &img, Display *disp, Window &root,
     img = Mat(iplImage);
 
 #ifdef DISPLAY
-    imshow("Test",img);
-    waitKey(0);
+    if (debug){
+        imshow("Test",img);
+        waitKey(0);
+    }
 #endif
 
     return 0;
@@ -97,6 +99,7 @@ int main(int argc, char ** argv)
     Detector *det = 0;
     Args *arg = new Args(argc,argv);
 
+
     if(arg->early.empty())
     {
         Display *display = XOpenDisplay(NULL);
@@ -106,12 +109,15 @@ int main(int argc, char ** argv)
             Mat early, later;
             populateMat(early, display, root,
                         arg->topleft_x,arg->topleft_y,
-                        arg->width,arg->height);
-            sleep(0.5);
+                        arg->width,arg->height,
+                        arg->debug);
+            sleep(1.25);
             populateMat(later, display, root,
                         arg->topleft_x,arg->topleft_y,
-                        arg->width,arg->height);
+                        arg->width,arg->height,
+                        arg->debug);
 
+            printf("TYPE=%d",early.channels());
 
             det = new Detector(arg->debug, early, later);
             delete det;
@@ -119,6 +125,8 @@ int main(int argc, char ** argv)
     }
     else {
         Mat early = imread(arg->early), later = imread(arg->later);
+
+        printf("\nTYPE=%d\n",early.channels());
         det = new Detector(arg->debug, early, later);
     }
 

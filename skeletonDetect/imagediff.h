@@ -31,7 +31,8 @@ public:
     float scalef;               // Scale factor of thumbnail
 #endif
 
-    Detector(bool debug, Mat &early, Mat &later){
+    Detector(bool debug, Mat &early, Mat &later)
+    {
 #ifdef DISPLAY
         scalef= 1.8;
 #endif
@@ -39,12 +40,16 @@ public:
         max_diam = 1;
         k_index_max = -1;
         sq_distance_from_player = 1<<30;
-        player_y = early.rows*3/4;
-        player_x =  early.cols;
+        player_y = (early.rows/2)*3/4;
+        player_x =  early.cols/2;
 
 
-        fgmask = DiffImage(early,later).fgmask;
-        moDetect(fgmask, debug);
+        DiffImage di(early,later);
+        if (!di.empty){
+            fgmask = di.fgmask;
+            moDetect(fgmask, debug);
+        }
+        else printf("empty\n");
     }
 
     void moDetect(Mat &fgmask, bool debug)
@@ -65,7 +70,9 @@ public:
             kkk != sorted_sizes.rend();
             ++kkk)
         {
-            k_counter ++;
+            if (k_counter++==10) break;
+
+
             KeyPoint kp = (*kkk).second;
             TestEachBlob teb(kp,fgmask, player_x, player_y, k_counter, debug);
 
@@ -84,15 +91,14 @@ public:
         }
 
 
-#ifdef DISPLAY
         if(debug) {
-            addBlobToDebugIMG(max, k_index_max, false,false,true);
+#ifdef DISPLAY
+            addBlobToDebugIMG(max, k_index_max, true,true,true);
             imshow("Frame",debug_img);
             waitKey(0);
-        }
 #endif
-
-        if (debug) fprintf(stderr, "\nLargest movement @ P%02d: ", k_index_max);
+            fprintf(stderr, "\nLargest movement @ P%02d: ", k_index_max);
+        }
         fprintf(stdout, "%d %d\n", int(max.pt.x), int(max.pt.y));
 
     }
@@ -111,13 +117,12 @@ public:
                 pixval2.val[1] = uchar(255);
                 pixval2.val[2] = pixval2.val[0] = uchar(0);
 
-                if(!max){
-                    if (yellow) pixval2.val[2] = uchar(255);   //Yellow (+red)
-                    if (red) {
-                        pixval2.val[2] = uchar(255);
-                        pixval2.val[1] = uchar(0);
-                    }
+                if (yellow) pixval2.val[2] = uchar(150);   //Yellow (+red)
+                if (red) {
+                    pixval2.val[2] = uchar(150);
+                    pixval2.val[1] = uchar(0);
                 }
+                if (max) pixval2.val[0] = uchar(100);
             }
         }
 
@@ -130,7 +135,7 @@ public:
         //Add center point
         Vec3b &pixval2 = debug_img.at<Vec3b>(ypos_sf,xpos_sf);
         if(max){
-            pixval2.val[0] = pixval2.val[1] = 0;
+            pixval2.val[0] = pixval2.val[1] = uchar(255);
             pixval2.val[2] = uchar(255);
         }
         else{
@@ -141,12 +146,12 @@ public:
         //Add line
         line( debug_img, Point(xpos_sf,ypos_sf), Point(player_x/scalef,player_y/scalef), Scalar(100,100,100),1); //No alpha channel cant transp
 
-        fprintf(stderr,"\n");
+//        fprintf(stderr,"\n");
 
     }
 
     bool isNewMax(int &sq_distance, float &diam, bool &debug){
-        if(debug) fprintf(stderr, " closer:%d", sq_distance);
+        if(debug) fprintf(stderr, " proxim:%d", sq_distance);
 
         //2. Smaller blob closer?
         if(sq_distance > sq_distance_from_player){
@@ -169,8 +174,6 @@ public:
             if (debug) fprintf(stderr,":N");
             else return false;
         }
-
-        if (debug) fprintf(stderr,":N");
 
         //4. How much closer?
         float dist_scale = (float)(sq_distance)/sq_distance_from_player;

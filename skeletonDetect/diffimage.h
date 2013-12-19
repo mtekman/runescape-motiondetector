@@ -11,25 +11,41 @@ class DiffImage
 {
 public:
     Mat fgmask;
+    bool empty;
 
     DiffImage(Mat &early, Mat &later){
+        empty=false;
+
         difference(early,later);
 
-        removePlayer(fgmask);
-        removeBottomPanel(fgmask);
+        if (notEmpty()){
+            removePlayer();
+            removeBottomPanel();
+        }
+        else empty=true;
     }
+
+    bool notEmpty(){
+        Scalar sums = sum(fgmask);
+        if ((sums.val[0] > 10 ) || (sums.val[1] > 10) || (sums.val[2]>10) ) return true;
+        return false;
+    }
+
 
     void difference(Mat &early,Mat &later){
         // POSTERIZE
         early /=100; early *=100;
         later /=100; later *=100;
 
-        fgmask = later - early;        //Simple subtraction
+//        Mat diff = later- early;
+//        threshold(diff,fgmask,100,100,CV_THRESH_BINARY);
+
+        fgmask = later - early  ;      //Simple subtraction
     }
 
 
 
-    void removePlayer(Mat &fgmask){
+    void removePlayer(){
         // REMOVE PLAYER  =  Black out center of screen
         int row_rad = fgmask.rows/2,     col_rad = fgmask.cols/2;
         int block_size_row = row_rad/4,  block_size_col = col_rad/6;
@@ -44,7 +60,7 @@ public:
         }
     }
 
-    void removeBottomPanel(Mat &fgmask){
+    void removeBottomPanel(){
         // REMOVE BOTTOM PANEL // remove 1/8th
         for (int y= fgmask.rows-(fgmask.rows/8); y< fgmask.rows; y++)
         {
