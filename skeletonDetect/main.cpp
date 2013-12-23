@@ -2,11 +2,8 @@
 
 #define neigh_size 2
 
-#include <stdio.h>
-#include <opencv2/opencv.hpp>
-#include <opencv2/core/core.hpp>
-#include <opencv2/highgui/highgui.hpp>
 #include <X11/Xlib.h>
+#include <time.h>
 
 #include "imagediff.h"
 
@@ -58,6 +55,13 @@ public:
 };
 
 
+static void sleep(unsigned int mseconds)
+{
+    clock_t goal = mseconds + clock();
+    while (goal > clock());
+}
+
+
 static int populateMat(Mat &img, Display *disp, Window &root,
                        int &x, int &y, int &width, int& height, bool &debug)
 {
@@ -71,15 +75,15 @@ static int populateMat(Mat &img, Display *disp, Window &root,
     IplImage *iplImage = cvCreateImageHeader(
                 cvSize(xImageSample->width, xImageSample->height),
                 IPL_DEPTH_8U,
-                3);
-//                xImageSample->data
-//                xImageSample->bits_per_pixel/8);
+//                3);
+                xImageSample->bits_per_pixel/8);
 
     iplImage->widthStep = xImageSample->bytes_per_line;
     if(xImageSample->data != NULL)
         iplImage->imageData = xImageSample->data;
 
     img = Mat(iplImage);
+    cvtColor(img,img,CV_BGRA2BGR); //Remove alpha in Ximage
 
 #ifdef DISPLAY
     if (debug){
@@ -111,29 +115,36 @@ int main(int argc, char ** argv)
                         arg->topleft_x,arg->topleft_y,
                         arg->width,arg->height,
                         arg->debug);
-            sleep(1.25);
+            sleep(1250);
             populateMat(later, display, root,
                         arg->topleft_x,arg->topleft_y,
                         arg->width,arg->height,
                         arg->debug);
 
-            printf("TYPE=%d",early.channels());
-
             det = new Detector(arg->debug, early, later);
+            if (det->k_index_max!=-1)
+            {
+
+
+
+                char buffer[100];
+                sprintf(buffer,"xte \"mousemove `expr %d + %d`", arg->topleft_x, int(det->max.pt.x));
+                printf(buffer,stderr);
+
+                sprintf(buffer,"`expr %d + %d`\"", arg->topleft_y, int(det->max.pt.y));
+                printf(buffer,stderr);
+
+                sprintf(buffer,"\"mouseclick 1\"");
+                printf(buffer,stderr);
+
+//                system(buffer);
+            }
             delete det;
         }
     }
     else {
         Mat early = imread(arg->early), later = imread(arg->later);
-
-        printf("\nTYPE=%d\n",early.channels());
         det = new Detector(arg->debug, early, later);
     }
-
     delete det;
 }
-
-
-
-
-

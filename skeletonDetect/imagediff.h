@@ -2,13 +2,9 @@
 
 #define neigh_size 2
 
-#include <stdio.h>
-#include <opencv2/opencv.hpp>
-#include <opencv2/highgui/highgui.hpp>
-
+#include "diffimage.h"
 #include "blobmaster.h"
 #include "blobtest.h"
-#include "diffimage.h"
 
 using namespace std;
 
@@ -71,7 +67,6 @@ public:
             ++kkk)
         {
             if (k_counter++==10) break;
-
 
             KeyPoint kp = (*kkk).second;
             TestEachBlob teb(kp,fgmask, player_x, player_y, k_counter, debug);

@@ -1,8 +1,4 @@
-#include <opencv2/opencv.hpp>
-#include <opencv2/highgui/highgui.hpp>
-
 #include "colortest.h"
-
 
 static int isqrt(int num) {
     int res = 0, bit = 1 << 30; // The second-to-top bit is set: 1L<<30 for long
