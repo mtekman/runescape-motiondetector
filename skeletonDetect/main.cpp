@@ -1,99 +1,82 @@
-#define DISPLAY  //imshow prompts
-
-#define neigh_size 2
-
-#include <X11/Xlib.h>
-#include <time.h>
-
 #include "imagediff.h"
+#include "xdesktop.h"
 
 using namespace cv;
 using namespace std;
 
+//Opts
+string debug_arg="--debug";
+string xdo_arg="--xdo";
+string runs_arg="--runs=";
+
 void usage(){
-    fprintf(stderr, "Prints X,Y coordinate of largest detected motion between either between two images or a window position taken at 1/4 second intervals\n\n");
-    fprintf(stderr, "usage: skeletonDetect <first.jpg> <second.jpg> [--debug]");
+    fprintf(stderr, "Prints X,Y coordinate of largest detected motion between either between two images or a window position taken at ~1/4 second intervals\n\n");
+    fprintf(stderr, "usage: skeletonDetect <first.jpg> <second.jpg> [OPTIONS]");
     fprintf(stderr, "\n       or");
-    fprintf(stderr, "\n       skeletonDetect <topleft_X> <topleft_Y> <width> <height> [--debug]\n");
+    fprintf(stderr, "\n       skeletonDetect <+X> <+Y> <width> <height> [OPTIONS]\n");
+    fprintf(stderr, "\nOPTIONS:");
+    fprintf(stderr, "\n  %s\tShow stats of each detection", debug_arg.c_str());
+    fprintf(stderr, "\n  %s  \tclick and type random numbers on detection\n", xdo_arg.c_str());
+    fprintf(stderr, "\n  %s=N\tnumber of times to run window detector [infinite]\n", runs_arg.c_str());
     exit(-1);
 }
 
 class Args{
 public:
     string early, later;
-    int topleft_x, topleft_y, width, height;
-    bool debug;
+    int topleft_x, topleft_y, width, height, runs;
+    bool debug, xdo;
 
     Args(int argc, char ** argv)
     {
-        topleft_x = topleft_y = width = height = -1;
-        debug = false;
+        if(argc<2) usage();
 
-        switch(argc){
-        case 0:
-        case 1:
-        case 2: usage(); break;
-            //image no debug flag
-        case 3:
-            early = argv[1]; later= argv[2]; break;
-            //image w/ debug
+        topleft_x = topleft_y = width = height = runs = -1;
+        debug = xdo = false;
+
+        //Determine number of hypen arguments
+        int num_hyp_args= 0;
+        int num_oth_args= argc-1;
+
+        for (int i=argc-1; i>0; i--){
+            string carg = argv[i];
+            if (carg[0]=='-'){
+                if (carg == debug_arg){
+                    debug=true;
+                    num_hyp_args++;
+                } else if (carg == xdo_arg){
+                    xdo = true;
+                    num_hyp_args++;
+                } else if (carg.substr(0,7) == runs_arg){
+                    int temp_runs = atoi(carg.substr(7,runs_arg.length()-1).c_str());
+                    if(temp_runs<1){
+                        printf("illegal run value\n",stderr); exit(-1);
+                    }
+                    runs = temp_runs;
+                    num_hyp_args++;
+                } else {
+                    fprintf(stderr,"cannot parse:%s\n", carg.c_str());
+                    exit(-1);
+                }
+            }
+        }
+        num_oth_args -= num_hyp_args;
+
+        switch(num_oth_args){
+        case 2:
+            early=argv[1]; later=argv[2]; break;
         case 4:
-            early = argv[1]; later= argv[2]; debug=true; break;
-            //positions no debug flag
-        case 5:
-            topleft_x = atoi(argv[1]), topleft_y = atoi(argv[2]), width = atoi(argv[3]), height = atoi(argv[4]);
-            break;
-          case 6:
-            //positions with debug flag
-            debug = true;
             topleft_x = atoi(argv[1]), topleft_y = atoi(argv[2]), width = atoi(argv[3]), height = atoi(argv[4]);
             break;
         default:
-            usage(); break;
+            printf("Wrong number of arguments!\n",stderr); exit(-1);
         }
+
+//        fprintf(stderr,"num_hyp=%d  num_oth=%d, debug=%d  xdo=%d, runs=%d\n",num_hyp_args, num_oth_args, debug, xdo, runs);
+//        exit(-1);
+
     }
 };
-
-
-static void sleep(unsigned int mseconds)
-{
-    clock_t goal = mseconds + clock();
-    while (goal > clock());
-}
-
-
-static int populateMat(Mat &img, Display *disp, Window &root,
-                       int &x, int &y, int &width, int& height, bool &debug)
-{
-    XImage* xImageSample = XGetImage(disp, root, x, y, width, height, AllPlanes, ZPixmap);
-
-    if (!(xImageSample != NULL && disp != NULL)) return EXIT_FAILURE;
-
-    assert(xImageSample->format == ZPixmap);
-    assert(xImageSample->depth == 24);
-
-    IplImage *iplImage = cvCreateImageHeader(
-                cvSize(xImageSample->width, xImageSample->height),
-                IPL_DEPTH_8U,
-//                3);
-                xImageSample->bits_per_pixel/8);
-
-    iplImage->widthStep = xImageSample->bytes_per_line;
-    if(xImageSample->data != NULL)
-        iplImage->imageData = xImageSample->data;
-
-    img = Mat(iplImage);
-    cvtColor(img,img,CV_BGRA2BGR); //Remove alpha in Ximage
-
-#ifdef DISPLAY
-    if (debug){
-        imshow("Test",img);
-        waitKey(0);
-    }
-#endif
-
-    return 0;
-}
 
 
 //////////////////////////////////////////////////////
@@ -109,35 +92,24 @@ int main(int argc, char ** argv)
         Display *display = XOpenDisplay(NULL);
         Window root = DefaultRootWindow(display);
 
-        while(true){
+        int run_count = (arg->runs==-1)?INT_MAX:arg->runs;
+        while(run_count-->0){
             Mat early, later;
             populateMat(early, display, root,
                         arg->topleft_x,arg->topleft_y,
                         arg->width,arg->height,
                         arg->debug);
-            sleep(1250);
+            randsleep(500,1000);
             populateMat(later, display, root,
                         arg->topleft_x,arg->topleft_y,
                         arg->width,arg->height,
                         arg->debug);
 
             det = new Detector(arg->debug, early, later);
-            if (det->k_index_max!=-1)
+            if (arg->xdo && det->k_index_max!=-1)
             {
-
-
-
-                char buffer[100];
-                sprintf(buffer,"xte \"mousemove `expr %d + %d`", arg->topleft_x, int(det->max.pt.x));
-                printf(buffer,stderr);
-
-                sprintf(buffer,"`expr %d + %d`\"", arg->topleft_y, int(det->max.pt.y));
-                printf(buffer,stderr);
-
-                sprintf(buffer,"\"mouseclick 1\"");
-                printf(buffer,stderr);
-
-//                system(buffer);
+                clickhere(arg->topleft_x, arg->topleft_y,int(det->max.pt.x),int(det->max.pt.y));
+                typeHits();
             }
             delete det;
         }
@@ -146,5 +118,5 @@ int main(int argc, char ** argv)
         Mat early = imread(arg->early), later = imread(arg->later);
         det = new Detector(arg->debug, early, later);
     }
-    delete det;
+//    delete det;
 }

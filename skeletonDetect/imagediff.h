@@ -1,6 +1,11 @@
-//#define DISPLAY  //imshow prompts
-
+#define DISPLAY  //imshow prompts
 #define neigh_size 2
+
+#ifdef DISPLAY
+        #define scalef 2    //thumbnail size
+#endif
+
+
 
 #include "diffimage.h"
 #include "blobmaster.h"
@@ -24,15 +29,10 @@ public:
 
 #ifdef DISPLAY
     Mat debug_img;            // Debug thumbnail, work is only projected here, not read from ever
-    float scalef;               // Scale factor of thumbnail
 #endif
 
     Detector(bool debug, Mat &early, Mat &later)
     {
-#ifdef DISPLAY
-        scalef= 1.8;
-#endif
-
         max_diam = 1;
         k_index_max = -1;
         sq_distance_from_player = 1<<30;
@@ -45,18 +45,14 @@ public:
             fgmask = di.fgmask;
             moDetect(fgmask, debug);
         }
-        else printf("empty\n");
+//        else printf("empty\n");
     }
 
     void moDetect(Mat &fgmask, bool debug)
     {
 
 #ifdef DISPLAY
-        if (debug){
-            resize(fgmask, debug_img, Size(fgmask.cols/scalef, fgmask.rows/scalef));
-            imshow("Frame",debug_img);
-            waitKey(0);
-        }
+        if (debug) resize(fgmask, debug_img, Size(fgmask.cols/scalef, fgmask.rows/scalef));
 #endif
         map<float,KeyPoint> sorted_sizes = BlobMaster(fgmask).sorted_sizes;
         int k_counter=0;
@@ -86,19 +82,20 @@ public:
         }
 
 
-        if(debug) {
+        if(debug) fprintf(stderr, "\nLargest movement @ P%02d: ", k_index_max);
+        fprintf(stdout, "[X Y] = %d %d\n", int(max.pt.x), int(max.pt.y));
+
 #ifdef DISPLAY
+        if(debug){
             addBlobToDebugIMG(max, k_index_max, true,true,true);
-            imshow("Frame",debug_img);
-            waitKey(0);
-#endif
-            fprintf(stderr, "\nLargest movement @ P%02d: ", k_index_max);
+            imshow("Debug",debug_img);
+            waitKey(1);
         }
-        fprintf(stdout, "%d %d\n", int(max.pt.x), int(max.pt.y));
+#endif
 
     }
 
-
+#ifdef DISPLAY
     void addBlobToDebugIMG(KeyPoint kp, int k,
                            bool yellow, bool red, bool max=false){
         int rad = int(kp.size);                                       //Update thumbnail image with spots left
@@ -144,6 +141,7 @@ public:
 //        fprintf(stderr,"\n");
 
     }
+#endif
 
     bool isNewMax(int &sq_distance, float &diam, bool &debug){
         if(debug) fprintf(stderr, " proxim:%d", sq_distance);
