@@ -4,20 +4,23 @@
 using namespace cv;
 using namespace std;
 
+#define VER "v1.8"
+
 //Opts
 string debug_arg="--debug";
 string xdo_arg="--xdo";
 string runs_arg="--runs=";
 
 void usage(){
-    fprintf(stderr, "Prints X,Y coordinate of largest detected motion between either between two images or a window position taken at ~1/4 second intervals\n\n");
+    fprintf(stderr, "Skeleton Detector %s\n", VER);
+    fprintf(stderr, "\nPrints X,Y coordinate of largest detected motion between either between two images or a window position taken at ~1/4 second intervals\n\n");
     fprintf(stderr, "usage: skeletonDetect <first.jpg> <second.jpg> [OPTIONS]");
     fprintf(stderr, "\n       or");
     fprintf(stderr, "\n       skeletonDetect <+X> <+Y> <width> <height> [OPTIONS]\n");
     fprintf(stderr, "\nOPTIONS:");
     fprintf(stderr, "\n  %s\tShow stats of each detection", debug_arg.c_str());
-    fprintf(stderr, "\n  %s  \tclick and type random numbers on detection\n", xdo_arg.c_str());
-    fprintf(stderr, "\n  %s=N\tnumber of times to run window detector [infinite]\n", runs_arg.c_str());
+    fprintf(stderr, "\n  %s  \tclick and type random numbers on detection", xdo_arg.c_str());
+    fprintf(stderr, "\n  %sN\tnumber of times to run window detector [infinite]\n", runs_arg.c_str());
     exit(-1);
 }
 
