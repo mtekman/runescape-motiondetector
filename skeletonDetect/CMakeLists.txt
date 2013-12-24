@@ -1,6 +1,6 @@
 project(skeletonDetect)
 cmake_minimum_required(VERSION 2.8)
 aux_source_directory(. SRC_LIST)
-add_executable(${PROJECT_NAME} ${SRC_LIST} imagediff.h colortest.h blobmaster.h diffimage.h blobtest.h)
+add_executable(${PROJECT_NAME} ${SRC_LIST} xdesktop.h imagediff.h colortest.h blobmaster.h diffimage.h blobtest.h)
 find_package( OpenCV REQUIRED )
 target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBS} )
