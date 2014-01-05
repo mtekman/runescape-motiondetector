@@ -1,10 +1,18 @@
-pos_array[0]="881 174"
-pos_array[1]="614 362"
-pos_array[2]="977 359"
-pos_array[3]="863 698"
-pos_array[4]="766 600"
-pos_array[5]="910 396"
-pos_array[6]="631 320"
-
+pos_array[0]="992 408"
+pos_array[1]="845 407"
+pos_array[2]="847 172"
+pos_array[3]="802 351"
+pos_array[4]="518 360"
+pos_array[5]="745 399"
+pos_array[6]="998 493"
+pos_array[7]="847 400"
+pos_array[8]="973 699"
+pos_array[9]="855 406"
+pos_array[10]="746 491"
+pos_array[11]="842 399"
+pos_array[12]="654 435"
+pos_array[13]="799 439"
+pos_array[14]="851 242"
 # This config mines coal in the dwarven mines. 
-# Requires you zoom out fully, upright the camera, stand just below candle, and set min=10 max=20
+# Requires you zoom out fully, upright the camera, hit north.
+# Stand just below candle, and set min=10 max=20
