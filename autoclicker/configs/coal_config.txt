@@ -1,0 +1,10 @@
+pos_array[0]="881 174"
+pos_array[1]="614 362"
+pos_array[2]="977 359"
+pos_array[3]="863 698"
+pos_array[4]="766 600"
+pos_array[5]="910 396"
+pos_array[6]="631 320"
+
+# This config mines coal in the dwarven mines. 
+# Requires you zoom out fully, upright the camera, stand just below candle, and set min=10 max=20
