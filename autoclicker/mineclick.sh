@@ -1,6 +1,4 @@
-#center="660 430"
-#bottom="650 550"
-#top="660 320"
+#!/bin/bash
 
 count=0
 
@@ -26,28 +24,46 @@ min=$2
 max=$3
 randy=$4
 
-function getXY(){
+##### First determine window position
+
+winname="RuneScape"
+window=$(xwininfo -name "$winname")
+[ "$window" = "" ] && exit -1
+
+winid=$(echo "$window" | grep " id" | awk '{print $4}')
+ulX=$(echo "$window" | grep "Absolute upper-left X" | awk -F":" '{print $2}')
+ulY=$(echo "$window" | grep "Absolute upper-left Y" | awk -F":" '{print $2}')
+
+function getRelativeXY(){
 	eval $(xdotool getmouselocation --shell 2>/dev/null)
-	echo "$X $Y" >&2
-	echo "$X $Y"
+	out="$(($X - $ulX)) $(($Y - $ulY))"
+	echo $out>&2
+	echo $out
 }
 
 
 function promptXY(){
 	echo -n "Press c when in pos: " >&2
 	read -n 1
-	getXY
+	getRelativeXY
 }
 
  ########## Make Pos Array ######################
 pos_array=()
 mine_log=minelog.txt
 
+
 if [ -f $1 ]; then #i.e is a file 
 	echo "RELOADING $1"
 	eval $(cat $1)
 else
-	rm $mine_log 2>/dev/null
+	#Store width, height vars
+	width=$(echo "$window" | grep "Width" | awk '{print $2}')
+	height=$(echo "$window" | grep "Height" | awk '{print $2}')
+
+	echo "width=$width" > $mine_log
+	echo "height=$height" >> $mine_log
+
 	while [ $count -lt $numclk ]; do
 		res=$(promptXY)
 		pos_array[$count]="$res"
@@ -82,11 +98,21 @@ function clicker(){
         x=$(( $1 - $mod ))
         y=$(( $2 - $mod ))
 
-	xdotool mousemove $x $y;
 	echo -en "[$x,$y]"
-	xdotool click 1;
+	xdotool mousemove --window $winid $x $y click 1;
 }
 
+# Change window size
+xdotool windowsize $winid $width $height
+
+countdown=3
+until [ $countdown = 0 ];do
+	echo -n "$countdown... ">&2
+	sleep 1
+	countdown=$(( $countdown - 1 ))
+done
+echo "GO!">&2
+sleep 1
 
 arr_size=${#pos_array[@]}
 
