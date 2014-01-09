@@ -1,8 +1,9 @@
-pos_array[0]="801 352"
-pos_array[1]="461 303"
-pos_array[2]="795 343"
-pos_array[3]="862 344"
-pos_array[4]="803 347"
-pos_array[5]="1096 392"
-# Position south, zoom out a bit, full vertical, stand infront of rightmost silver ore in
-# the room in the dungeon mine.
+width=1033
+height=628
+pos_array[0]="516 359"
+pos_array[1]="781 407"
+pos_array[2]="523 359"
+pos_array[3]="471 361"
+pos_array[4]="513 363"
+pos_array[5]="305 312"
+#Rest compass, zoom out, first rock on left
