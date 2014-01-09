@@ -87,8 +87,13 @@ function sleeprand(){
 	if [ $modd -lt $min ]; then
 		modd=$(( $modd + $min ))
 	fi
-	echo -n "w:$modd    "
-	sleep $modd
+
+	count_down=$modd
+	until [ $count_down = 0 ]; do
+		echo -en "\r\t\twait : $count_down    "
+		count_down=$(( $count_down - 1 ))
+		sleep 1
+	done
 }
 
 function clicker(){
@@ -99,7 +104,15 @@ function clicker(){
         y=$(( $2 - $mod ))
 
 	echo -en "[$x,$y]"
+
+	#store last position of mouse (X,Y) and last window (WINDOW)
+	eval $(xdotool getmouselocation --shell 2>/dev/null)
+	xdotool mouseup 1
 	xdotool mousemove --window $winid $x $y click 1;
+
+	#restore mouse + focus
+	xdotool mousemove $X $Y
+	xdotool click 2       #middle click to gain focus, otherwise  #xdotool windowfocus --sync $WINDOW
 }
 
 # Change window size
@@ -107,12 +120,11 @@ xdotool windowsize $winid $width $height
 
 countdown=3
 until [ $countdown = 0 ];do
-	echo -n "$countdown... ">&2
-	sleep 1
+	echo -n "$countdown   ">&2
+	sleep 0.5
 	countdown=$(( $countdown - 1 ))
 done
 echo "GO!">&2
-sleep 1
 
 arr_size=${#pos_array[@]}
 
@@ -133,7 +145,7 @@ while [ 0 ]; do
 			done
 		fi
 
-		echo -en "$ind:"
+		echo -en "\r$ind:"
 		clicker ${pos_array[$ind]}
 		sleeprand $min $max
 
