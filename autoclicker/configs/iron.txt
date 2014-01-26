@@ -1,0 +1,8 @@
+width=1033
+height=628
+pos_array[0]="512 285"
+pos_array[1]="558 103"
+pos_array[2]="463 541"
+pos_array[3]="556 159"
+pos_array[4]="465 577"
+# Face north, zoom out and and stand below lower of the two iron rocks
