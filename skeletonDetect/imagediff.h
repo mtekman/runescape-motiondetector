@@ -6,7 +6,6 @@
 #endif
 
 
-
 #include "diffimage.h"
 #include "blobmaster.h"
 #include "blobtest.h"
@@ -25,19 +24,23 @@ public:
     int player_y, player_x;            //player position
     int row_rad, col_rad;               //Center of img
 
+    int wait_num;
+
     Mat fgmask; //forw decl.
 
 #ifdef DISPLAY
     Mat debug_img;            // Debug thumbnail, work is only projected here, not read from ever
 #endif
 
-    Detector(bool debug, Mat &early, Mat &later)
+    Detector(bool debug, Mat &early, Mat &later,bool &single)
     {
         max_diam = 1;
         k_index_max = -1;
         sq_distance_from_player = 1<<30;
         player_y = (early.rows/2)*3/4;
         player_x =  early.cols/2;
+
+        wait_num = single?0:1;
 
 
         DiffImage di(early,later);
@@ -89,7 +92,8 @@ public:
         if(debug){
             addBlobToDebugIMG(max, k_index_max, true,true,true);
             imshow("Debug",debug_img);
-            waitKey(1);
+            waitKey(wait_num);
+            cerr << "wait_num=" << wait_num << endl;
         }
 #endif
 

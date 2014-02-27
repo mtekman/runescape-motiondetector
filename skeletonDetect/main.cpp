@@ -89,6 +89,8 @@ int main(int argc, char ** argv)
     Detector *det = 0;
     Args *arg = new Args(argc,argv);
 
+    bool single_run = arg->runs < 2;
+
 
     if(arg->early.empty())
     {
@@ -108,7 +110,7 @@ int main(int argc, char ** argv)
                         arg->width,arg->height,
                         arg->debug);
 
-            det = new Detector(arg->debug, early, later);
+            det = new Detector(arg->debug, early, later, single_run);
             if (arg->xdo && det->k_index_max!=-1)
             {
                 clickhere(arg->topleft_x, arg->topleft_y,int(det->max.pt.x),int(det->max.pt.y));
@@ -119,7 +121,7 @@ int main(int argc, char ** argv)
     }
     else {
         Mat early = imread(arg->early), later = imread(arg->later);
-        det = new Detector(arg->debug, early, later);
+        det = new Detector(arg->debug, early, later, single_run);
     }
 //    delete det;
 }
