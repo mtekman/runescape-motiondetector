@@ -2,7 +2,7 @@
 
 # Window position
 window="RuneScape"
-skeletonDect="./skeletonDetect-build/skeletonDetect"
+skeletonDect="./skeletonDetect/mineDetect"
 
 [ "$(xwininfo -name $window)" = "" ] && exit
 
@@ -13,4 +13,4 @@ width=`xwininfo -name "$window" | grep Width | awk '{ print $NF }' | head -1`
 height=`xwininfo -name "$window" | grep Height | awk '{ print $NF }' | head -1`
 
 
-$skeletonDect $xpos $ypos $width $height --xdo
+$skeletonDect $xpos $ypos $width $height --xdo --debug

@@ -7,13 +7,14 @@ if [ $# -lt 3 ] || [ $# -gt 4 ]; then
 [Randomly] Cycles between a number of different of mouseclicks at roughly min to max second intervals
 
 usage: 
-   `basename $0` <num clicks> <min-t> <max-t> [-r]
+   `basename $0` <num clicks> <min-t> <max-t> [-r] [--drop]
           or
-   `basename $0` <array_file> <min-t> <max-t> [-r]
+   `basename $0` <array_file> <min-t> <max-t> [-r] [--drop]
 
 where:
  array_file   load click positions of a previous run
          -r   random pick avail positions, not cycle
+     --drop   drops TL item in inventory (placed TL)
 
 " >&2
 	exit -1
@@ -23,6 +24,13 @@ numclk=$1
 min=$2
 max=$3
 randy=$4
+drop="N"
+
+if [ "$randy" = "--drop" ] || [ "$5" = "--drop" ]; then
+	drop="Y"
+	echo "Dropping enabled"
+fi
+
 
 ##### First determine window position
 
@@ -100,15 +108,18 @@ function clicker(){
 	mod=$RANDOM
 	mod=$(echo ${mod:0:1})
 
-        x=$(( $1 - $mod ))
-        y=$(( $2 - $mod ))
+	x=$(( $1 - $mod ))
+	y=$(( $2 - $mod ))
+
+	but=$3
+	[ "$but" = "" ] && but=1
 
 	echo -en "[$x,$y]"
 
 	#store last position of mouse (X,Y) and last window (WINDOW)
 	eval $(xdotool getmouselocation --shell 2>/dev/null)
-	xdotool mouseup 1
-	xdotool mousemove --window $winid $x $y click 1;
+	xdotool mouseup $but
+	xdotool mousemove --window $winid $x $y click $but;
 
 	#restore mouse + focus
 	xdotool mousemove $X $Y
@@ -151,6 +162,15 @@ while [ 0 ]; do
 
 		lastind=$ind
 		count=$(( $count + 1 ))
+
+
+		# Drop item?
+		if [ "$drop" = "Y" ];then
+#			echo -n " drop"
+			clicker 25 36 3
+			sleep 1
+			clicker 35 80 1
+		fi
 	done
 	echo -en "\r"
 done

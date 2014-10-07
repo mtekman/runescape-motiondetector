@@ -47,7 +47,7 @@ static void typeHits(){
 
 static void clickhere(int topl_x, int topl_y, int x, int y){
     char buffer[250];
-    sprintf(buffer,"xte \"mousemove `expr %d + %d` `expr %d + %d`\" \"mouseclick 1\"\n",
+    sprintf(buffer,"xdotool mousemove `expr %d + %d` `expr %d + %d` click 1\n",
             topl_x, x,
             topl_y, y);
 //    printf(buffer,stderr);
