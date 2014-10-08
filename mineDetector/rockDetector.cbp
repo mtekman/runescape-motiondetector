@@ -72,17 +72,27 @@
       </Build>
       <Unit filename="/home/tetris/Documents/REPOS/personal_scripts/upgrader_rs/rockDetector/main.cpp">
       </Unit>
-      <Unit filename="/home/tetris/Documents/REPOS/personal_scripts/upgrader_rs/rockDetector/blobmaster.h">
+      <Unit filename="/home/tetris/Documents/REPOS/personal_scripts/upgrader_rs/rockDetector/args.h">
       </Unit>
-      <Unit filename="/home/tetris/Documents/REPOS/personal_scripts/upgrader_rs/rockDetector/blobtest.h">
+      <Unit filename="/home/tetris/Documents/REPOS/personal_scripts/upgrader_rs/rockDetector/blobops.h">
       </Unit>
-      <Unit filename="/home/tetris/Documents/REPOS/personal_scripts/upgrader_rs/rockDetector/colortest.h">
+      <Unit filename="/home/tetris/Documents/REPOS/personal_scripts/upgrader_rs/rockDetector/blobprofile.h">
+      </Unit>
+      <Unit filename="/home/tetris/Documents/REPOS/personal_scripts/upgrader_rs/rockDetector/cvfuncs.h">
+      </Unit>
+      <Unit filename="/home/tetris/Documents/REPOS/personal_scripts/upgrader_rs/rockDetector/desktopops.h">
       </Unit>
       <Unit filename="/home/tetris/Documents/REPOS/personal_scripts/upgrader_rs/rockDetector/diffimage.h">
       </Unit>
-      <Unit filename="/home/tetris/Documents/REPOS/personal_scripts/upgrader_rs/rockDetector/imagediff.h">
+      <Unit filename="/home/tetris/Documents/REPOS/personal_scripts/upgrader_rs/rockDetector/orefinder.h">
       </Unit>
-      <Unit filename="/home/tetris/Documents/REPOS/personal_scripts/upgrader_rs/rockDetector/xdesktop.h">
+      <Unit filename="/home/tetris/Documents/REPOS/personal_scripts/upgrader_rs/rockDetector/params.h">
+      </Unit>
+      <Unit filename="/home/tetris/Documents/REPOS/personal_scripts/upgrader_rs/rockDetector/playerfinder.h">
+      </Unit>
+      <Unit filename="/home/tetris/Documents/REPOS/personal_scripts/upgrader_rs/rockDetector/timeops.h">
+      </Unit>
+      <Unit filename="/home/tetris/Documents/REPOS/personal_scripts/upgrader_rs/rockDetector/typedefs.h">
       </Unit>
       <Unit filename="/home/tetris/Documents/REPOS/personal_scripts/upgrader_rs/rockDetector/CMakeLists.txt">
           <Option virtualFolder="CMake Files\" />
