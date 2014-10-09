@@ -8,43 +8,6 @@ using namespace cv;
 class BlobOps{
 public:
 
-    static void addBlob2Image(KeyPoint &kp, Mat &image, ushort color=0){
-        int rad = int(kp.size);                                       //Update thumbnail image with spots left
-        int xpos = int(kp.pt.x), ypos = int(kp.pt.y);
-
-        int scalef = 1; //... uh...
-        int ypos_sf = ypos/scalef, xpos_sf = xpos/scalef;
-
-        // color:   0 --> white
-        //          1 --> red
-        //          2 --> green
-        //          3 --> yellow
-
-
-        for (int i=-rad; i < rad; i++){
-            for (int j=-rad; j < rad; j++){
-                Vec3b &pixval2 = image.at<Vec3b>((ypos_sf)+j,(xpos_sf)+i);  //Default Green = good
-                pixval2.val[2] = pixval2.val[1] = pixval2.val[0] = uchar(0); //Black
-
-                switch(color){
-                    case 0: // white
-                        pixval2.val[2] = pixval2.val[1] = pixval2.val[0] = uchar(200); //white
-                        break;
-                    case 1: // red
-                        pixval2.val[0] = uchar(200);
-                        break;
-                    case 2: // green
-                        pixval2.val[1] = uchar(200);
-                        break;
-                    case 3: // yellow
-                        pixval2.val[0] = pixval2.val[1] = uchar(200);
-                        break;
-                }
-            }
-        }
-    }
-
-
     static float dist_between(Point2f &p1, Point2f &p2){
         int x_dist = p1.x - p2.x,  y_dist = p1.y - p2.y;
         return sqrt( (x_dist*x_dist)+(y_dist*y_dist) );

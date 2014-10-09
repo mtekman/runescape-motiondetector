@@ -28,7 +28,6 @@ struct RockParams : Params {
     }
 };
 
-
 struct TwinkleParams : Params{
     TwinkleParams(){
         //Difference image, no colour
@@ -40,5 +39,4 @@ struct TwinkleParams : Params{
         params.maxArea = 5.0f;
     }
 };
-
 #endif

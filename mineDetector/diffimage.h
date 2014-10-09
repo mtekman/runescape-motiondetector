@@ -27,9 +27,10 @@ private:
 
 
     void difference(Mat &early,Mat &later){
-        // POSTERIZE
-        early /=100; early *=100;
-        later /=100; later *=100;
+        // POSTERIZE, no we need all the sparkle we can get
+        // plus there's very little noise in a CG image
+//        early /=100; early *=100;
+//        later /=100; later *=100;
 
         fgmask = later - early  ;      //Simple subtraction
     }

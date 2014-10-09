@@ -3,7 +3,10 @@
 
 struct PlayerFinder{
     bool is_idle;
-    PlayerFinder(Mat &early, Mat &later, bool debug){};
+    PlayerFinder(Mat &early, Mat &later, bool debug)
+    {
+        //TODO:
+    };
 };
 
 #endif
