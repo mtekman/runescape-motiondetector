@@ -49,7 +49,7 @@ struct DesktopOps{
 
         cerr << "-- choosing: [" << at.pt.x << "," << at.pt.y << "]" << endl;
 
-        clickhere(top_coords.x, top_coords.y,  at.pt.x, at.pt.y);
+        clickhere(top_coords.x, top_coords.y, at.pt.x, at.pt.y);
     }
 
     static void charbychar(char * start, int len){

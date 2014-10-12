@@ -35,19 +35,20 @@ struct OreFinder{
 */
 
         //Diff images
-        DiffImage *di = new DiffImage(early,later);
-        BlobProfile *twink = new BlobProfile(di->fgmask, false);
+        DiffImage di(early,later);
+        BlobProfile twink(di.fgmask);
 
         if (debug){
             early /= 4;
-            CVFuncs::addBlobVect2Image(twink->keypoints, early);
+            CVFuncs::addBlobVect2Image(twink.keypoints, early);
             showIMG(early, 1200, 0);
 
-            showIMG(di->fgmask, 1200, 0 );
+            showIMG(di.fgmask, 1200, 0 );
         }
 
-        ore_locs = twink->keypoints;
+        ore_locs = twink.keypoints;
     }
+
 };
 
 #endif

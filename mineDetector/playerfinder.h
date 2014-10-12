@@ -18,8 +18,8 @@ struct PlayerFinder{
                     width,
                     height);
 
-        Mat early_player = Mat(early,roi);
-        Mat later_player = Mat(later, roi);
+        Mat early_player(early,roi);
+        Mat later_player(later, roi);
 
         Mat diff_player = later_player - early_player;
 
@@ -34,15 +34,15 @@ struct PlayerFinder{
 
         erode(bw_diff, bw_diff, element);
 
-//        if(debug){
-//            cout << "Non-zero = " << countNonZero(bw_diff) << endl;
+#ifdef DEBUG
+            cout << "Non-zero = " << countNonZero(bw_diff) << endl;
 
-//            Mat debugger;
-//            vconcat(early_player, later_player, debugger);
-//            vconcat(debugger, diff_player, debugger);
+            Mat debugger;
+            vconcat(early_player, later_player, debugger);
+            vconcat(debugger, diff_player, debugger);
 
-//            showIMG(debugger, 1300, 10);
-//        }
+            showIMG(debugger, 1300, 10);
+#endif
 
         //Threshold of movement determined to be at 60 by testing
         move_pix = countNonZero(bw_diff);

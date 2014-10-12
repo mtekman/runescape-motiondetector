@@ -2,6 +2,8 @@
 #define CVFUNCS_H
 
 #include <X11/Xlib.h>
+#include <X11/Xutil.h>
+
 
 #include "typedefs.h"
 
@@ -21,8 +23,6 @@
 
 
 struct CVFuncs{
-
-
 
     static Mat oneChannelto3(Mat &search_mask){
         Mat search_mask_img;
@@ -85,12 +85,12 @@ struct CVFuncs{
 
 
 
-    static int populateMat(Mat &img, Display *disp, Window &root,
+    static void populateMat(Mat &img, Display *disp, Window &root,
                            int &x, int &y, int &width, int& height)
     {
-        XImage* xImageSample = XGetImage(disp, root, x, y, width, height, AllPlanes, ZPixmap);
+        XImage *xImageSample = XGetImage(disp, root, x, y, width, height, AllPlanes, ZPixmap);
 
-        if (!(xImageSample != NULL && disp != NULL)) return EXIT_FAILURE;
+        if (!(xImageSample != NULL && disp != NULL)) exit(-1);
 
         assert(xImageSample->format == ZPixmap);
         assert(xImageSample->depth == 24);
@@ -100,14 +100,20 @@ struct CVFuncs{
                     IPL_DEPTH_8U,
                     xImageSample->bits_per_pixel/8);
 
-        iplImage->widthStep = xImageSample->bytes_per_line;
-        if(xImageSample->data != NULL)
-            iplImage->imageData = xImageSample->data;
+        if(xImageSample->data != NULL){
+            cvSetData(iplImage, xImageSample->data, xImageSample->bytes_per_line);
+        }
 
-        img = Mat(iplImage);
-        cvtColor(img,img,CV_BGRA2BGR); //Remove alpha in Ximage  4 channel --> 3
+//        iplImage->widthStep = xImageSample->bytes_per_line;
+//            iplImage->imageData = xImageSample->data;
 
-        return 0;
+        XDestroyImage(xImageSample);
+//        delete xImageSample;
+
+        Mat src_img(iplImage);
+        cvtColor(src_img,img,CV_BGRA2BGR); //Remove alpha in Ximage  4 channel --> 3
+
+        cvReleaseImageHeader(&iplImage);
     }
 
 
