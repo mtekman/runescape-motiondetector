@@ -5,7 +5,85 @@
 
 #include "typedefs.h"
 
+
+#define DEBUG_KP(kpma)\
+    for(keyvect::iterator kit= kpma.begin(); kit!= kpma.end(); ++kit){\
+        KeyPoint kp = *kit;\
+        cerr << " ([" << kp.pt.x << "," << kp.pt.y << "] " << kp.size << ")" << flush;\
+    }
+
+#define DEBUG_KM(kpma)\
+    for(keymap::iterator kit= kpma.begin(); kit!= kpma.end(); ++kit){\
+        float dist = kit->first;\
+        KeyPoint kp = kit->second;\
+        cerr << " (" << dist << "[" << kp.pt.x << "," << kp.pt.y << "] " << kp.size << ")" << flush;\
+    }
+
+
 struct CVFuncs{
+
+
+
+    static Mat oneChannelto3(Mat &search_mask){
+        Mat search_mask_img;
+        Mat search_three_channel [] = {search_mask, search_mask, search_mask};
+        merge(search_three_channel, 3, search_mask_img);
+        return search_mask_img;
+    }
+
+    static Mat makeSearchMap2Mask(int width, int height, keymap &km){
+        // Make searc mask image (Three channels)
+        Mat search_mask = Mat::zeros(height, width, CV_8U);
+        addBlobMap2Image(km,search_mask);
+        return oneChannelto3(search_mask);
+    }
+
+    static Mat makeSearchVect2Mask(int width, int height, keyvect &kv){
+        // Make searc mask image (Three channels)
+        Mat search_mask = Mat::zeros(height, width, CV_8U);
+        addBlobVect2Image(kv,search_mask);
+        return oneChannelto3(search_mask);
+    }
+
+
+    static void addSearchMask2Img(Mat &debug_img, keymap &km, float intens=1){
+        Mat search_mask = makeSearchMap2Mask(debug_img.cols, debug_img.rows, km);
+        search_mask *= intens;
+        debug_img += search_mask;
+    }
+
+    static void addSearchVect2Img(Mat &debug_img, keyvect &km, float intens=1){
+        Mat search_mask = makeSearchVect2Mask(debug_img.cols, debug_img.rows, km);
+        search_mask *= intens;
+        debug_img += search_mask;
+    }
+
+
+    static void showKeyMapIMG(Mat &img, keymap &km){
+        cerr << "KP::" << flush; DEBUG_KM(km); cerr << '\n' << endl;
+        float scalef = 1.2;
+
+        Mat debug_img(img);
+        addSearchMask2Img(debug_img, km);
+
+        resize(debug_img, debug_img, Size(img.cols/scalef, img.rows/scalef));
+
+        showIMG(debug_img, 1050, 150);
+    }
+
+    static void showKeyVectIMG(Mat &img, keyvect &km){
+        cerr << "KP::" << flush; DEBUG_KP(km); cerr << '\n' << endl;
+        float scalef = 1.2;
+
+        Mat debug_img(img);
+        addSearchVect2Img(debug_img, km);
+
+        resize(debug_img, debug_img, Size(img.cols/scalef, img.rows/scalef));
+
+        showIMG(debug_img, 1050, 150);
+    }
+
+
 
     static int populateMat(Mat &img, Display *disp, Window &root,
                            int &x, int &y, int &width, int& height)
@@ -33,9 +111,9 @@ struct CVFuncs{
     }
 
 
-    static void addText2Image(int val, int x, int y, Mat &img){
+    static void addText2Image(float val, int x, int y, Mat &img){
         //Add text
-        char s[5]; sprintf(s,"P %02d", val);
+        char s[5]; sprintf(s,"P %.4f", val);
 
         putText(img, s , cvPoint(x, y),
                 FONT_HERSHEY_COMPLEX_SMALL, 0.5, cvScalar(200,200,250), 1, CV_AA);
@@ -46,6 +124,8 @@ struct CVFuncs{
         for (keyvect::const_iterator itt = kv.begin(); itt != kv.end(); ++itt){
             KeyPoint ka = *itt;
             addBlob2Image(ka, image, color);
+            addText2Image(ka.size, ka.pt.x, ka.pt.y, image);
+
         }
     }
 

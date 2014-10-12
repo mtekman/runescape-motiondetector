@@ -32,7 +32,21 @@ private:
 //        early /=100; early *=100;
 //        later /=100; later *=100;
 
-        fgmask = later - early  ;      //Simple subtraction
+        Mat fgmask1 = later - early;      //Simple subtraction
+        Mat fgmask2 = early - later;
+
+        fgmask = fgmask1 + fgmask2;
+
+        int lower=130;
+        inRange(fgmask, Scalar(lower, lower, lower), Scalar(255, 255, 255), fgmask);
+
+        int erosion_size = 2;
+        Mat element = getStructuringElement(MORPH_CROSS,
+                                            Size( 2*erosion_size + 1, 2*erosion_size+1 ),
+                                            Point( erosion_size, erosion_size ) );
+        dilate(fgmask, fgmask, element);
+
+
     }
 
 };

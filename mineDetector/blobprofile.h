@@ -12,9 +12,10 @@ public:
     {
         // Image is a colour image if looking for rocks,
         // or a binary diff if looking for twinkles
-        Params *pm;
-        if(findrock) pm = new RockParams;
-        else pm = new TwinkleParams;
+//        Params *pm;
+//        if(findrock) pm = new RockParams;
+//        else pm = new TwinkleParams;
+        Params *pm = new TwinkleParams;
 
         //Create detector
         Ptr<FeatureDetector> blob_detector = new SimpleBlobDetector(pm->params);

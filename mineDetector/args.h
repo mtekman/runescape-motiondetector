@@ -7,7 +7,7 @@
 
 using namespace std;
 
-#define VER "v0.3"
+#define VER "v0.4"
 
 //Opts
 string debug_arg="--debug";
@@ -37,13 +37,15 @@ public:
     string early, later;
     int topleft_x, topleft_y, width, height;
     bool debug, xdo, nearest;
-    int maxdig, runs;
+    uint maxdig;
+    int runs;
 
     Args(int argc, char ** argv)
     {
         if(argc<2) usage();
 
-        topleft_x = topleft_y = width = height = runs = maxdig = -1;
+        topleft_x = topleft_y = width = height = runs = -1;
+        maxdig = 30000000;
         debug = xdo = nearest = false;
 
         //Determine number of hypen arguments
@@ -72,11 +74,11 @@ public:
                     runs = temp_runs;
                     num_hyp_args++;
                 } else if (carg.substr(0,9) == maxdig_arg){
-                    int temp_digs = atoi(carg.substr(9,runs_arg.length()-1).c_str());
+                    int temp_digs = atoi(carg.substr(9,runs_arg.length()-1).c_str()) * 1000000;
                     if(temp_digs<1){
                         printf("illegal dig value\n",stderr); exit(-1);
                     }
-                    maxdig = temp_digs;
+                    maxdig = (uint)temp_digs;
                     num_hyp_args++;
                 } else {
                     fprintf(stderr,"cannot parse:%s\n", carg.c_str());
