@@ -80,10 +80,10 @@ int main(int argc, char ** argv)
                     DesktopOps::clickOnOne(ore_locs, nearest,
                                            window_coords,
                                            player_coords);
+                    total_digtime_elapsed = 0; //reset count
+                    player_idle_total = 0;
+                    cerr << "Digging..." << endl;
                 }
-                total_digtime_elapsed = 0; //reset count
-                player_idle_total = 0;
-                cerr << "Digging..." << endl;
             }
         }
 //        delete display;

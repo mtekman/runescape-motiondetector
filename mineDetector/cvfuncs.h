@@ -100,20 +100,33 @@ struct CVFuncs{
                     IPL_DEPTH_8U,
                     xImageSample->bits_per_pixel/8);
 
+ //       cerr << "Gte to here" << endl;
+
         if(xImageSample->data != NULL){
             cvSetData(iplImage, xImageSample->data, xImageSample->bytes_per_line);
         }
 
+//        cerr << "Get past here" << endl;
+
+
 //        iplImage->widthStep = xImageSample->bytes_per_line;
 //            iplImage->imageData = xImageSample->data;
 
-        XDestroyImage(xImageSample);
+
 //        delete xImageSample;
 
         Mat src_img(iplImage);
+ //       cerr << "Made it here" << endl;
         cvtColor(src_img,img,CV_BGRA2BGR); //Remove alpha in Ximage  4 channel --> 3
+ //       cerr << "Made it here2" << endl;
+
 
         cvReleaseImageHeader(&iplImage);
+//        cerr << "yo" << endl;
+        XDestroyImage(xImageSample);
+//        cerr << "yo2" << endl;
+
+
     }
 
 

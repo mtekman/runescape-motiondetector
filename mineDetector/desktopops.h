@@ -11,17 +11,24 @@ struct DesktopOps{
         //Statically defined by inventory in top left corner
         // 3x3 window should be, each approx 40 pixels WxH
 
+        int start_x = 26, start_y = 45;
+
         int col_index = rand()%3, row_index = rand()%3;
         int col_modif = col_index * 40;
         int row_modif = row_index * 40;
 
-        clickhere(window_coords.x, window_coords.y, 24 + col_modif, 55 + row_modif, 3); // right click menu
+        clickhere(window_coords.x, window_coords.y,
+                  start_x + col_modif,
+                  start_y + row_modif, 3); // right click menu
         TimeOps::randsleep(0,1);
-        clickhere(window_coords.x, window_coords.y, 24 + col_modif, 98 + row_modif, 1); // left click drop
+        clickhere(window_coords.x, window_coords.y,
+                  start_x + col_modif,
+                  start_y + row_modif + 42, 1); // left click drop
+        TimeOps::randsleep(1,2);
+        clickhere(window_coords.x, window_coords.y,
+                  start_x + col_modif,
+                  start_y + row_modif, 1); // left click off
         TimeOps::randsleep(0,1);
-        clickhere(window_coords.x, window_coords.y, 24 + col_modif, 140 + row_modif, 1); // middle click off
-        TimeOps::randsleep(0,1);
-
     }
 
 
