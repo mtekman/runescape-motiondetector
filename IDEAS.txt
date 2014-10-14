@@ -1,0 +1,17 @@
+Mine clicker based on two things:
+
+	* Mo-Detect on a given rock locus:
+		Deps:
+		* Size of locus
+		* Position
+		Ops:
+		* Twinkle of rock (within a known region) --> Queue for ready
+		* Colour of rock --> Dead, check another
+
+	* Clicking:
+		* Selects regions to monitor (for every movement update)
+		* Time min,max -- update intervals for clicker
+
+
+	* 
+	
