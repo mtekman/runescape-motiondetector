@@ -140,10 +140,11 @@ struct CVFuncs{
 
 
     static void addBlobVect2Image(keyvect &kv, Mat &image, ushort color=0){
+        int count=0;
         for (keyvect::const_iterator itt = kv.begin(); itt != kv.end(); ++itt){
             KeyPoint ka = *itt;
             addBlob2Image(ka, image, color);
-            addText2Image(ka.size, ka.pt.x, ka.pt.y, image);
+            addText2Image(++count, ka.pt.x, ka.pt.y, image);
 
         }
     }

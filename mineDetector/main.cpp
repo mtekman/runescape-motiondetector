@@ -90,12 +90,12 @@ int main(int argc, char ** argv)
     }
     else {
         Mat early = imread(arg->early), later = imread(arg->later);
-        player_coords = Point(early.cols, early.rows);
-
-        PlayerFinder plf(player_coords,early, later, arg->debug);
-
         delete arg;
+        player_coords = Point(early.cols/2, early.rows/2);
 
-        //        OreFinder(early, later, true);
+        PlayerFinder plf(player_coords, early, later, debug);
+        cerr << "Player idle?" << plf.is_idle << ", movePix:" << plf.move_pix << endl;
+
+        OreFinder(early, later, true);
     }
 }
