@@ -2,40 +2,53 @@
 #define OREFINDER_H
 
 #include "blobprofile.h"
+#include "cvfuncs.h"
 #include "blobops.h"
 #include "diffimage.h"
 
+#include "rockfinder.h"
 
 /** finds rocks between two images and finds twinkle points **/
 struct OreFinder{
     keyvect ore_locs;
 
+
     OreFinder(Mat &early, Mat &later, bool debug=false)
     {
         //Populate keypoints of rocks for both images
-        BlobProfile *bp1 = new BlobProfile(early, true);
+
+//        RockFinder *rf = new RockFinder(early);
+ //       exit(0);
+
+
+/*      BlobProfile *bp1 = new BlobProfile(early, true);
         BlobProfile *bp2 = new BlobProfile(later, true);
 
         //Find common Rock points in general
         keymap rock_regions = BlobOps::findSimilarities(bp1->keypoints, bp2->keypoints, 10);
 
+        if (debug){
+            CVFuncs::showKeyVectIMG(early,bp1->keypoints); // rock_regions);
+            CVFuncs::showKeyVectIMG(later,bp2->keypoints); //rock_regions);
+            CVFuncs::showKeyMapIMG(early,rock_regions);
+        }
+*/
+
         //Diff images
-        DiffImage *di = new DiffImage(early,later);
+        DiffImage di(early,later);
+        BlobProfile twink(di.fgmask);
 
-        //Find Twinkles within the diffimage, specifically those in the rock point locations
-        // Make a search_mask
-        Mat *search_mask = new Mat(Mat::zeros(early.rows, early.cols, CV_8U));
+        if (debug){
+            early /= 4;
+            CVFuncs::addBlobVect2Image(twink.keypoints, early);
+            showIMG(early, 1200, 0);
 
-        for (keymap::const_iterator itt = rock_regions.begin(); itt != rock_regions.end(); ++itt){
-            float dist = itt->first;
-            KeyPoint ka = itt->second;
-            BlobOps::addBlob2Image(ka, *search_mask);
+            showIMG(di.fgmask, 1200, 0 );
         }
 
-        //Now find twinkle points
-        BlobProfile *twink = new BlobProfile(di->fgmask, false, search_mask);
-        ore_locs = twink->keypoints;
+        ore_locs = twink.keypoints;
     }
+
 };
 
 #endif

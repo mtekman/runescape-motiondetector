@@ -10,4 +10,8 @@ typedef vector<cv::KeyPoint> keyvect;
 typedef map<float,KeyPoint> keymap;
 //typedef map<float,KeyPoint[2]> compmap;
 
+#define showIMG(img, x,y)\
+    imshow("img", img); moveWindow("img",x,y);waitKey(0)
+
+
 #endif

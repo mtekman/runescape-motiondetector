@@ -10,10 +10,10 @@ struct TimeOps{
         while (goal > clock());
     }
 
-    inline static uint randsleep(uint min_msecs=0, uint max_msecs=500){
-        min_msecs *=1000;
-        max_msecs *=1000;
-        uint sleeper = (rand()+min_msecs) % max_msecs;
+    inline static uint randsleep(uint min_secs=0, uint max_secs=500){
+        min_secs *=1000000;
+        max_secs *=1000000;
+        uint sleeper = (rand()+min_secs) % max_secs;
         sleep(sleeper);
         return sleeper;
     }
