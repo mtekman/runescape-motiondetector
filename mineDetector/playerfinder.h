@@ -47,6 +47,10 @@ struct PlayerFinder{
         //Threshold of movement determined to be at 60 by testing
         move_pix = countNonZero(bw_diff);
         is_idle = move_pix<40;
+
+        if (debug)
+            cerr << "Player idle?" << is_idle << ", movePix:" << move_pix << endl;
+
     }
 };
 

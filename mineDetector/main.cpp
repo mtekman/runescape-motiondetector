@@ -46,7 +46,7 @@ int main(int argc, char ** argv)
                                  window_dims.x, window_dims.y);
 
 
-            TimeOps::sleep(seconds_between_frames * 987543);
+            TimeOps::sleep(seconds_between_frames * 1987543);
             total_digtime_elapsed += seconds_between_frames;
 
             CVFuncs::populateMat(later, display, root,
@@ -90,12 +90,10 @@ int main(int argc, char ** argv)
     }
     else {
         Mat early = imread(arg->early), later = imread(arg->later);
-        delete arg;
         player_coords = Point(early.cols/2, early.rows/2);
 
-        PlayerFinder plf(player_coords, early, later, debug);
-        cerr << "Player idle?" << plf.is_idle << ", movePix:" << plf.move_pix << endl;
-
-        OreFinder(early, later, true);
+        PlayerFinder (player_coords, early, later, debug);
+        OreFinder(early, later, arg->debug);
+        delete arg;
     }
 }

@@ -16,11 +16,11 @@ struct OreFinder{
     {
         //Populate keypoints of rocks for both images
 
-//        RockFinder *rf = new RockFinder(early);
- //       exit(0);
+        //        RockFinder *rf = new RockFinder(early);
+        //       exit(0);
 
 
-/*      BlobProfile *bp1 = new BlobProfile(early, true);
+        /*      BlobProfile *bp1 = new BlobProfile(early, true);
         BlobProfile *bp2 = new BlobProfile(later, true);
 
         //Find common Rock points in general
@@ -37,77 +37,108 @@ struct OreFinder{
         DiffImage di(early,later);
         BlobProfile twink(di.fgmask);
 
-//        if (debug){
-//            debbie /= 4;
-//            CVFuncs::addBlobVect2Image(twink.keypoints, debbie);
-//            showIMG(debbie, 1200, 0);
-//        }
 
-        filterPreviousBlacks(early, later, twink.keypoints);
+        if (debug){
+            Mat debbie = di.fgmask.clone();
+            debbie /= 4;
+            CVFuncs::addBlobVect2Image(twink.keypoints, debbie);
+            showIMG(debbie, 900, 0);
+        }
 
-//        if (debug){
-//            showIMG(debbie, 1200, 0);
-//        }
 
+
+        if (debug){
+            Mat debbie = early.clone();
+            debbie /= 4;
+            CVFuncs::addBlobVect2Image(twink.keypoints, debbie);
+            showIMG(debbie, 900, 0);
+        }
+        filterPreviousBlacks(early, later, twink.keypoints, debug);
+
+        if (debug){
+            Mat debbie = early.clone();
+            debbie /= 4;
+            CVFuncs::addBlobVect2Image(twink.keypoints, debbie);
+            showIMG(debbie, 900, 0);
+        }
         ore_locs = twink.keypoints;
     }
+
 
     /** Checks keypoint locations to see if they
      * correspond to spots that were previously
      * black (coal deposits). **/
     void filterPreviousBlacks(Mat &early, Mat &later,
-            keyvect &keypoints)
+                              keyvect &keypoints, bool &debug)
     {
-        for (keyvect::iterator it= keypoints.begin();it != keypoints.end(); ++it)
+        for (keyvect::iterator it= keypoints.begin();it != keypoints.end();)
         {
             KeyPoint &kp = *it;
             Point pt = kp.pt;
 
-            Vec3b average_set1;
-            Vec3b average_set2;
+            int range = 5;
+            int step = 3;
+            float limit = 30;
 
-            char range = 150;
-            uchar limit = 150;
+            if (debug){
+                cerr << endl;
+                cerr << pt.x << "--" << pt.y << endl;
+            }
 
+            Point min;
+            float min_sq= 999999999999;
+            Vec3b chosen_set [2];
 
-            for (char c=-range; c< range ;c++){
-                for (char s= -range; s < range; s++){
+            for (int c=-range; c< range ;c += step){
+                for (int s= -range; s < range; s += step){
                     Vec3b pixel_set1 = early.at<Vec3b>(pt.x + c, pt.y +s);
                     Vec3b pixel_set2 = later.at<Vec3b>(pt.x + c, pt.y +s);
 
-//                    uchar &b1 = pixel_set1[0], &g1 = pixel_set1[1], &r1 = pixel_set1[2];
-//                    uchar &b2 = pixel_set2[0], &g2 = pixel_set2[1], &r2 = pixel_set2[2];
+                    uchar &b1 = pixel_set1[0], &g1 = pixel_set1[1], &r1 = pixel_set1[2];
+                    uchar &b2 = pixel_set2[0], &g2 = pixel_set2[1], &r2 = pixel_set2[2];
 
-                    cerr << "YODELAI" << endl;
-                    if (pixel_set1 != pixel_set2){
+                    //                    float pic_diff = (float)(b1+g1+r1)/(b2+g2+r2);
+                    //                    if (pic_diff < (1/limit) || pic_diff > limit){
 
-//                        if (b1 < limit || g1 < limit || r1 < limit || b2 < limit || g2 < limit || r2 < limit){
-//                            cerr << "YOOO " << (int)c << "," << (int)s << endl;
-//                            cerr << (int)pixel_set1[0] << "-" << (int)pixel_set1[1] << "-" << (int)pixel_set1[2] << "," << flush;
-//                            cerr << (int)pixel_set2[0] << "-" << (int)pixel_set2[1] << "-" << (int)pixel_set2[2] << endl;
-//                        }
+                    if (b1 < limit || g1 < limit || r1 < limit
+                            || b2 < limit || g2 < limit || r2 < limit){
+
+                        float square = c*c + s*s;
+                        if (square < min_sq){
+                            min_sq = square;
+                            min.x = c;
+                            min.y = s;
+                            chosen_set[0] = pixel_set1;
+                            chosen_set[1] = pixel_set2;
+                        }
                     }
-                    average_set1 += pixel_set1;
-                    average_set2 += pixel_set2;
                 }
             }
-            average_set1 /= range * range;
-            average_set2 /= range * range;
+            kp.pt.x += min.x;
+            kp.pt.y += min.y;
 
+            if (debug){
+                cerr << "[" << kp.pt.x << "," << kp.pt.y << "] = " << flush;
+                cerr << (int)chosen_set[0][0] << " " << (int)chosen_set[0][1] << " " << (int)chosen_set[0][2] << "," << flush;
+                cerr << (int)chosen_set[1][0] << " " << (int)chosen_set[1][1] << " " << (int)chosen_set[1][2] << endl;
+            }
 
-//            //If neither are within lim, delete
-//            if (!((b1 < limit && g1 < limit && r1 < limit)
-//                ||
-//                (b2 < limit && g2 < limit && r2 < limit)))
-//            {
-//                it = keypoints.erase(it); //give next iterator
-//            }
-//            ++it;
+            //If neither are within lim, delete
+            if (chosen_set[0] == Vec3b({0,0,0}))
+            {
+                it = keypoints.erase(it); //give next iterator
+            }
+            else ++it;
         }
 
+
+        if (debug){
+            cerr << "\nFinal List:" << endl;
+            for (keyvect::iterator it= keypoints.begin();it != keypoints.end(); ++it){
+                cerr << (*it).pt.x << " - " << (*it).pt.y << endl;
+            }
+        }
     }
-
-
 };
 
 #endif

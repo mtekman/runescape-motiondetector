@@ -44,6 +44,7 @@ private:
         Mat element = getStructuringElement(MORPH_CROSS,
                                             Size( 2*erosion_size + 1, 2*erosion_size+1 ),
                                             Point( erosion_size, erosion_size ) );
+
         dilate(fgmask, fgmask, element);
 
 
