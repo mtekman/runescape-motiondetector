@@ -6,8 +6,6 @@
 #include "blobops.h"
 #include "diffimage.h"
 
-#include "rockfinder.h"
-
 /** finds rocks between two images and finds twinkle points **/
 struct OreFinder{
     keyvect ore_locs;
@@ -37,30 +35,31 @@ struct OreFinder{
         DiffImage di(early,later);
         BlobProfile twink(di.fgmask);
 
-
         if (debug){
-            Mat debbie = di.fgmask.clone();
-            debbie /= 4;
-            CVFuncs::addBlobVect2Image(twink.keypoints, debbie);
-            showIMG(debbie, 900, 0);
+            Mat debbie = early.clone()/2 + later.clone()/2;
+            debbie /= 3;
+
+            showIMG(debbie, 900,0);
+
+            Mat debbie2 = di.fgmask.clone();
+            debbie2 /= 1.5;
+
+            Mat king = debbie + debbie2;
+            showIMG(king, 900, 0);
+
+            CVFuncs::addBlobVect2Image(twink.keypoints, king);
+            showIMG(king, 900, 0);
+
         }
 
+//        filterPreviousBlacks(early, later, twink.keypoints, debug);
 
-
-        if (debug){
-            Mat debbie = early.clone();
-            debbie /= 4;
-            CVFuncs::addBlobVect2Image(twink.keypoints, debbie);
-            showIMG(debbie, 900, 0);
-        }
-        filterPreviousBlacks(early, later, twink.keypoints, debug);
-
-        if (debug){
-            Mat debbie = early.clone();
-            debbie /= 4;
-            CVFuncs::addBlobVect2Image(twink.keypoints, debbie);
-            showIMG(debbie, 900, 0);
-        }
+//        if (debug){
+//            Mat debbie = early.clone();
+//            debbie /= 4;
+//            CVFuncs::addBlobVect2Image(twink.keypoints, debbie);
+//            showIMG(debbie, 900, 0);
+//        }
         ore_locs = twink.keypoints;
     }
 
