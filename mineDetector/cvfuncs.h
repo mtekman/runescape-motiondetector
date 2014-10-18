@@ -144,7 +144,7 @@ struct CVFuncs{
         for (keyvect::const_iterator itt = kv.begin(); itt != kv.end(); ++itt){
             KeyPoint ka = *itt;
             addBlob2Image(ka, image, color);
-            addText2Image(++count, ka.pt.x, ka.pt.y, image);
+            addText2Image(ka.size, ka.pt.x, ka.pt.y, image);
 
         }
     }

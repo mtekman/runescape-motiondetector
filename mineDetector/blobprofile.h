@@ -1,7 +1,33 @@
 #ifndef BLOBPROF_H
 #define BLOBPROF_H
 
-#include "params.h"
+#include "typedefs.h"
+
+struct Params{
+    SimpleBlobDetector::Params params;
+
+    Params(){
+        params.filterByInertia = false;
+        params.filterByConvexity = false;
+        params.filterByColor = false;
+        params.filterByArea = true;
+    }
+};
+
+struct TwinkleParams : Params{
+    TwinkleParams(){
+        //Difference image, no colour
+        params.minDistBetweenBlobs = 10.f;
+        params.filterByCircularity = false;
+
+//        params.blobColor = 200;
+
+        // Twinkle size
+        params.minArea = 30.f;
+        params.maxArea = 100.0f;
+    }
+};
+
 
 class BlobProfile{
    //*blob_detector;
@@ -14,11 +40,6 @@ public:
 
     BlobProfile(Mat &fgmask)
     {
-        // Image is a colour image if looking for rocks,
-        // or a binary diff if looking for twinkles
-//        Params *pm;
-//        if(findrock) pm = new RockParams;
-//        else pm = new TwinkleParams;
         pm = new TwinkleParams();
 
         //Create detector
@@ -29,8 +50,7 @@ public:
     }
 
     ~BlobProfile(){
-//        delete blob_detector;
-        delete pm;
+       delete pm;
     }
 };
 

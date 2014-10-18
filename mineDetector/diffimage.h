@@ -36,13 +36,13 @@ private:
         fgmask /= 50;
         fgmask *= 50;
 
-        int erosion_size = 4;
-        Mat element = getStructuringElement(MORPH_ELLIPSE,
-                                            Size( 2*erosion_size + 1, 2*erosion_size+1 ),
-                                            Point( erosion_size, erosion_size ) );
+        int dilation_size = 4;
 
-        dilate(fgmask, fgmask, element);
+        dilate(fgmask, fgmask, getStructuringElement(MORPH_ELLIPSE,
+                                                     Size( 2*dilation_size + 1, 2*dilation_size+1 ),
+                                                     Point( dilation_size, dilation_size ) ));
 
+        // Filter out non-whites
         Mat splitter[3];
         split(fgmask,splitter);
 
@@ -51,16 +51,9 @@ private:
         Mat green_on_red = green/red;
 
         Mat whiter = (blue_on_green/green_on_red);
-        whiter *=230;
+        fgmask = whiter * 230;
 
-//        float thresh = 2;
-//        whiter = ((whiter < thresh) & (whiter> 1/thresh)) * 200;
-
-        vector<Mat> vec;
-        vec.push_back(whiter); vec.push_back(whiter); vec.push_back(whiter);
-        merge(vec,fgmask);
     }
-
 };
 
 #endif

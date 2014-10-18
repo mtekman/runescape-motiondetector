@@ -12,47 +12,34 @@ struct OreFinder{
 
     OreFinder(Mat &early, Mat &later, bool debug=false)
     {
-        //Populate keypoints of rocks for both images
-
-        //        RockFinder *rf = new RockFinder(early);
-        //       exit(0);
-
-
-        /*      BlobProfile *bp1 = new BlobProfile(early, true);
-        BlobProfile *bp2 = new BlobProfile(later, true);
-
-        //Find common Rock points in general
-        keymap rock_regions = BlobOps::findSimilarities(bp1->keypoints, bp2->keypoints, 10);
-
-        if (debug){
-            CVFuncs::showKeyVectIMG(early,bp1->keypoints); // rock_regions);
-            CVFuncs::showKeyVectIMG(later,bp2->keypoints); //rock_regions);
-            CVFuncs::showKeyMapIMG(early,rock_regions);
-        }
-*/
-
         //Diff images
         DiffImage di(early,later);
         BlobProfile twink(di.fgmask);
 
+        filterPreviousBlacks(early, later, twink.keypoints, debug);
+
+        Mat king;
         if (debug){
             Mat debbie = early.clone()/2 + later.clone()/2;
             debbie /= 3;
 
-            showIMG(debbie, 900,0);
+            showIMG(debbie, 1000,0);
 
-            Mat debbie2 = di.fgmask.clone();
+            Mat debbie2;
+            vector<Mat> vec;
+            vec.push_back(di.fgmask); vec.push_back(di.fgmask); vec.push_back(di.fgmask);
+            merge(vec,debbie2);
+
             debbie2 /= 1.5;
 
-            Mat king = debbie + debbie2;
-            showIMG(king, 900, 0);
+            king = debbie + debbie2;
+            showIMG(king, 1000, 0);
 
             CVFuncs::addBlobVect2Image(twink.keypoints, king);
-            showIMG(king, 900, 0);
-
+            showIMG(king, 1000, 0);
+            showIMG(di.fgmask,1000,0);
         }
 
-//        filterPreviousBlacks(early, later, twink.keypoints, debug);
 
 //        if (debug){
 //            Mat debbie = early.clone();
@@ -67,8 +54,9 @@ struct OreFinder{
     /** Checks keypoint locations to see if they
      * correspond to spots that were previously
      * black (coal deposits). **/
-    void filterPreviousBlacks(Mat &early, Mat &later,
-                              keyvect &keypoints, bool &debug)
+    void filterPreviousBlacks(
+            Mat &early, Mat &later,
+            keyvect &keypoints, bool &debug)
     {
         for (keyvect::iterator it= keypoints.begin();it != keypoints.end();)
         {
@@ -77,7 +65,7 @@ struct OreFinder{
 
             int range = 5;
             int step = 3;
-            float limit = 30;
+            float limit = 100;
 
             if (debug){
                 cerr << endl;
