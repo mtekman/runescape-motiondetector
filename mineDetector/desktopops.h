@@ -1,13 +1,60 @@
 #ifndef DESKTOP_H
 #define DESKTOP_H
 
+
 #include "timeops.h"
 #include "typedefs.h"
 #include "blobops.h"
+#include "locatedropzone.h"
 
-struct DesktopOps{
 
-    static void dropOre(Point &window_coords){
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+
+
+struct DesktopOps {
+
+    static Display *disp;
+    static Window root;
+
+    static Point window_coords;
+    static Point window_dims;
+
+    static void populateMat(Mat &img,
+                            int &width = window_dims.x,
+                            int &height= window_dims.y,
+                            int &x=window_coords.x,
+                            int &y=window_coords.y
+                            )
+    {
+        XImage *xImageSample = XGetImage(disp, root, x, y, width, height, AllPlanes, ZPixmap);
+
+        if (!(xImageSample != NULL && disp != NULL)) exit(-1);
+
+        assert(xImageSample->format == ZPixmap);
+        assert(xImageSample->depth == 24);
+
+        IplImage *iplImage = cvCreateImageHeader(
+                    cvSize(xImageSample->width, xImageSample->height),
+                    IPL_DEPTH_8U,
+                    xImageSample->bits_per_pixel/8);
+
+        if(xImageSample->data != NULL){
+            cvSetData(iplImage, xImageSample->data, xImageSample->bytes_per_line);
+        }
+
+        Mat src_img(iplImage);
+        cvtColor(src_img,img,CV_BGRA2BGR); //Remove alpha in Ximage  4 channel --> 3
+
+
+        cvReleaseImageHeader(&iplImage);
+        XDestroyImage(xImageSample);
+    }
+
+
+
+
+    static void dropOre(){
         //Statically defined by inventory in top left corner
         // 3x3 window should be, each approx 40 pixels WxH
 
@@ -17,22 +64,37 @@ struct DesktopOps{
         int col_modif = col_index * 40;
         int row_modif = row_index * 40;
 
-        clickhere(window_coords.x, window_coords.y,
-                  start_x + col_modif,
+        clickhere(start_x + col_modif,
                   start_y + row_modif, 3); // right click menu
         TimeOps::randsleep(0,1);
-        clickhere(window_coords.x, window_coords.y,
-                  start_x + col_modif,
-                  start_y + row_modif + 42, 1); // left click drop
-        TimeOps::randsleep(1,2);
-        clickhere(window_coords.x, window_coords.y,
-                  start_x + col_modif,
-                  start_y + row_modif, 1); // left click off
+
+        //Look for "Drop" in upper left corner
+        Mat img_buffer;
+        int width = window_dims.x/3;
+        int height = window_dims.y/3;
+
+        populateMat(img_buffer,width, height);
+        DropZone d(img_buffer);
+
+        if (d.match!=Point(0,0)){
+            clickhere(d.match.x,
+                      d.match.y, 1);
+        }
+
+        else
+        {
+            clickhere(start_x + col_modif,
+                      start_y + row_modif + 42, 1); // left click drop
+            TimeOps::randsleep(1,2);
+
+            clickhere(start_x + col_modif,
+                      start_y + row_modif, 1); // left click off
+        }
         TimeOps::randsleep(0,1);
     }
 
 
-    static void clickOnOne(keyvect orelocs, bool click_nearest, Point top_coords, Point2f player_coords)
+    static void clickOnOne(keyvect orelocs, bool click_nearest, Point2f player_coords, Point &top_coords= window_coords)
     {
         KeyPoint at;
 
@@ -56,7 +118,7 @@ struct DesktopOps{
 
         cerr << "-- choosing: [" << at.pt.x << "," << at.pt.y << "]" << endl;
 
-        clickhere(top_coords.x, top_coords.y, at.pt.x, at.pt.y);
+        clickhere(at.pt.x, at.pt.y, top_coords.x, top_coords.y);
     }
 
     static void charbychar(char * start, int len){
@@ -89,7 +151,9 @@ struct DesktopOps{
     }
 
 
-    static void clickhere(int topl_x, int topl_y, int x, int y, int mouse=1){
+    static void clickhere(int x, int y, int mouse=1,
+                          int topl_x = window_coords.x,
+                          int topl_y = window_coords.y){
         char buffer[250];
         sprintf(buffer,"xdotool mousemove `expr %d + %d` `expr %d + %d` click %d\n",
                 topl_x, x,
@@ -99,5 +163,12 @@ struct DesktopOps{
         system(buffer);
     }
 };
+
+
+Display *DesktopOps::disp = XOpenDisplay(NULL);
+Window DesktopOps::root = DefaultRootWindow(DesktopOps::disp);
+
+//Point DesktopOps::window_coords(,0);
+//Point DesktopOps::window_dims(0,0);
 
 #endif

@@ -23,18 +23,16 @@ struct PlayerFinder{
 
         Mat diff_player = later_player - early_player;
 
-        //Num white pixels, serial method
         Mat bw_diff;
         cvtColor(diff_player, bw_diff, CV_RGB2GRAY);
 
         int erosion_size= 2;
-        Mat element = getStructuringElement(MORPH_CROSS,
+        Mat element = getStructuringElement(MORPH_ELLIPSE,
                                             Size( 2*erosion_size + 1, 2*erosion_size+1 ),
                                             Point( erosion_size, erosion_size ) );
-
         erode(bw_diff, bw_diff, element);
 
-#ifdef DEBUG
+        if (debug){
             cout << "Non-zero = " << countNonZero(bw_diff) << endl;
 
             Mat debugger;
@@ -42,11 +40,11 @@ struct PlayerFinder{
             vconcat(debugger, diff_player, debugger);
 
             showIMG(debugger, 1300, 10);
-#endif
+        }
 
         //Threshold of movement determined to be at 60 by testing
         move_pix = countNonZero(bw_diff);
-        is_idle = move_pix<40;
+        is_idle = move_pix < 100;
 
         if (debug)
             cerr << "Player idle?" << is_idle << ", movePix:" << move_pix << endl;

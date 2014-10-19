@@ -52,7 +52,6 @@ private:
 
         Mat whiter = (blue_on_green/green_on_red);
         fgmask = whiter * 230;
-
     }
 };
 

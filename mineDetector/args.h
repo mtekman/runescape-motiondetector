@@ -7,7 +7,7 @@
 
 using namespace std;
 
-#define VER "v0.6"
+#define VER "v0.8"
 
 //Opts
 string debug_arg="--debug";

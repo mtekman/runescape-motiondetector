@@ -5,8 +5,7 @@
 
 using namespace cv;
 
-class BlobOps{
-public:
+struct BlobOps{
 
     static float dist_between(Point2f &p1, Point2f &p2){
         int x_dist = p1.x - p2.x,  y_dist = p1.y - p2.y;

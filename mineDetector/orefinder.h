@@ -22,7 +22,7 @@ struct OreFinder{
             Mat debbie = early.clone()/2 + later.clone()/2;
             debbie /= 3;
 
-            showIMG(debbie, 1000,0);
+            showIMG(debbie, 100,0);
 
             Mat debbie2;
             vector<Mat> vec;
@@ -32,11 +32,11 @@ struct OreFinder{
             debbie2 /= 1.5;
 
             Mat king = debbie + debbie2;
-            showIMG(king, 1000, 0);
+            showIMG(king, 100, 0);
 
             CVFuncs::addBlobVect2Image(twink.keypoints, king);
-            showIMG(king, 1000, 0);
-            showIMG(di.fgmask,1000,0);
+            showIMG(king, 100, 0);
+            showIMG(di.fgmask,100,0);
         }
         ore_locs = twink.keypoints;
     }
@@ -63,10 +63,10 @@ struct OreFinder{
                 cerr << pt.x << "--" << pt.y << endl;
             }
 
-            Point min;
             float min_sq= 999999999999;
-//            Vec3b chosen_set [2];
-            bool good2go=false;
+            Point min;
+            Vec3b chosen_set [2];
+//            bool good2go=false;
 
             for (int c=-range; c< range ;c += step){
                 for (int s= -range; s < range; s += step){
@@ -82,15 +82,15 @@ struct OreFinder{
                     if (b1 < limit || g1 < limit || r1 < limit
                             || b2 < limit || g2 < limit || r2 < limit){
 
-/*                        float square = c*c + s*s;
+                        float square = c*c + s*s;
                         if (square < min_sq){
                             min_sq = square;
                             min.x = c;
                             min.y = s;
                             chosen_set[0] = pixel_set1;
                             chosen_set[1] = pixel_set2;
-                        }*/
-                        good2go = true;
+//                            good2go = true;
+                        }
                     }
                 }
             }
@@ -99,13 +99,13 @@ struct OreFinder{
 
             if (debug){
                 cerr << "[" << kp.pt.x << "," << kp.pt.y << "] = " << flush;
-//                cerr << (int)chosen_set[0][0] << " " << (int)chosen_set[0][1] << " " << (int)chosen_set[0][2] << "," << flush;
-//                cerr << (int)chosen_set[1][0] << " " << (int)chosen_set[1][1] << " " << (int)chosen_set[1][2] << endl;
+                cerr << (int)chosen_set[0][0] << " " << (int)chosen_set[0][1] << " " << (int)chosen_set[0][2] << "," << flush;
+                cerr << (int)chosen_set[1][0] << " " << (int)chosen_set[1][1] << " " << (int)chosen_set[1][2] << endl;
             }
 
             //If neither are within lim, delete
-//            if (chosen_set[0] == Vec3b({0,0,0}))
-            if (!good2go)
+            if (chosen_set[0] == Vec3b({0,0,0}))
+//            if (!good2go)
             {
                 it = keypoints.erase(it); //give next iterator
             }

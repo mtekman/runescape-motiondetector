@@ -1,8 +1,7 @@
 #include "args.h"
+#include "desktopops.h"
 #include "orefinder.h"
 #include "playerfinder.h"
-#include "cvfuncs.h"
-#include "desktopops.h"
 
 
 int main(int argc, char ** argv)
@@ -11,10 +10,10 @@ int main(int argc, char ** argv)
     uint digtime_max_limit = arg->maxdig;
     uint player_idle_thresh = 3;
 
-    Point window_coords(arg->topleft_x, arg->topleft_y);
-    Point window_dims(arg->width, arg->height);
+    Point DesktopOps::window_coords = Point(arg->topleft_x, arg->topleft_y);
+    Point DesktopOps::window_dims = Point(arg->width, arg->height);
 
-    Point player_coords(window_dims.x/2, window_dims.y/2);
+    Point player_coords(DesktopOps::window_dims.x/2, DesktopOps::window_dims.y/2);
 
     bool xdo = arg->xdo, nearest = arg->nearest, debug = arg->debug;
     int runs = arg->runs;
@@ -22,9 +21,6 @@ int main(int argc, char ** argv)
     if(arg->early.empty()) //Images not given, make
     {
 		delete arg;
-
-        Display *display = XOpenDisplay(NULL);
-        Window root = DefaultRootWindow(display);
 
         int run_count = (runs==-1)?INT_MAX:runs;
         uint total_digtime_elapsed = 0;
@@ -41,17 +37,12 @@ int main(int argc, char ** argv)
             total_digtime_elapsed += TimeOps::randsleep(1,2); //Initial random wait before acting
 
 
-            CVFuncs::populateMat(early, display, root,
-                                 window_coords.x, window_coords.y,
-                                 window_dims.x, window_dims.y);
-
+            DesktopOps::populateMat(early);
 
             TimeOps::sleep(seconds_between_frames * 1987543);
             total_digtime_elapsed += seconds_between_frames;
 
-            CVFuncs::populateMat(later, display, root,
-                                 window_coords.x, window_coords.y,
-                                 window_dims.x, window_dims.y);
+            DesktopOps::populateMat(later);
 
             // Check on player movement
             plf = new PlayerFinder(player_coords, early, later, debug);
@@ -75,11 +66,9 @@ int main(int argc, char ** argv)
 				delete orf;
 
                 if (xdo && ore_locs.size() > 1){
-                    DesktopOps::dropOre(window_coords);
+                    DesktopOps::dropOre();
 
-                    DesktopOps::clickOnOne(ore_locs, nearest,
-                                           window_coords,
-                                           player_coords);
+                    DesktopOps::clickOnOne(ore_locs, nearest,player_coords);
                     total_digtime_elapsed = 0; //reset count
                     player_idle_total = 0;
                     cerr << "Digging..." << endl;
