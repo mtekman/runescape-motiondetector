@@ -168,7 +168,7 @@ struct DesktopOps {
 Display *DesktopOps::disp = XOpenDisplay(NULL);
 Window DesktopOps::root = DefaultRootWindow(DesktopOps::disp);
 
-//Point DesktopOps::window_coords(,0);
-//Point DesktopOps::window_dims(0,0);
+Point DesktopOps::window_coords(0,0);
+Point DesktopOps::window_dims(0,0);
 
 #endif
