@@ -3,6 +3,8 @@
 input_imgs=$*;
 
 
+binary=../mineDetector-build/mineDetector
+
 sort_key_ind=$( echo $1 | egrep -o "[0-9]" -b | awk -F":" '{print $2"."($1+1)}')
 ext=$(echo $1 | awk -F"." '{print $NF}')
 
@@ -21,7 +23,7 @@ for index in `seq 0 $(( $# - 1 ))`; do
 	this=${imgs[$index]}.$ext;
 	next=${imgs[$(( $index + 1))]}.$ext;
 
-	output=$(./mineDetector $this $next --debug 2>&1 | head -1)
+	output=$( $binary $this $next --debug 2>&1 | head -1)
 	pix=$(echo $output | awk '{print $NF}')
 
 	echo "$this -> $next, movement?[y/n]" >&2

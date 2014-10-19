@@ -5,7 +5,7 @@
 #include "timeops.h"
 #include "typedefs.h"
 #include "blobops.h"
-#include "locatedropzone.h"
+#include "dropzone.h"
 
 
 #include <X11/Xlib.h>
@@ -19,6 +19,8 @@ struct DesktopOps {
 
     static Point window_coords;
     static Point window_dims;
+
+    static Point inventory_dims;
 
     static void populateMat(Mat &img,
                             int &width = window_dims.x,
@@ -53,42 +55,53 @@ struct DesktopOps {
 
 
 
+    static Mat getInventory(){
+        Mat invent;
+        populateMat(invent, inventory_dims.x, inventory_dims.y);
+        return invent;
+    }
 
-    static void dropOre(){
-        //Statically defined by inventory in top left corner
-        // 3x3 window should be, each approx 40 pixels WxH
 
-        int start_x = 26, start_y = 45;
+    static Point findOre(bool choose_random){
+        if (choose_random){
+            //Statically defined by inventory in top left corner
+            // 3x3 window should be, each approx 40 pixels WxH
 
-        int col_index = rand()%3, row_index = rand()%3;
-        int col_modif = col_index * 40;
-        int row_modif = row_index * 40;
+            int start_x = 26, start_y = 45;
 
-        clickhere(start_x + col_modif,
-                  start_y + row_modif, 3); // right click menu
-        TimeOps::randsleep(0,1);
+            int col_index = rand()%3, row_index = rand()%3;
+            int col_modif = col_index * 40;
+            int row_modif = row_index * 40;
 
-        //Look for "Drop" in upper left corner
-        Mat img_buffer;
-        int width = window_dims.x/3;
-        int height = window_dims.y/3;
+            return Point( start_x + col_modif,
+                          start_y + row_modif);
 
-        populateMat(img_buffer,width, height);
-        DropZone d(img_buffer);
-
-        if (d.match!=Point(0,0)){
-            clickhere(d.match.x,
-                      d.match.y, 1);
         }
 
-        else
-        {
-            clickhere(start_x + col_modif,
-                      start_y + row_modif + 42, 1); // left click drop
+        // Else find the ore automagically
+        Mat inventory = getInventory();
+        return DropZone(inventory,ORE_TYPE).match;
+    }
+
+
+    static void dropOre(bool choose_random=false)
+    {
+        // Right click on Ore
+        Point ore_point = findOre(choose_random);
+        clickhere(ore_point.x, ore_point.y, 3);
+
+        //Drop it if random, else find the 'Drop' part
+        if (choose_random){
+            clickhere(ore_point.x, ore_point.y + 42, 1);
+
             TimeOps::randsleep(1,2);
 
-            clickhere(start_x + col_modif,
-                      start_y + row_modif, 1); // left click off
+            clickhere(ore_point.x, ore_point.y, 1); // left click off
+        }
+        else{
+            Mat zone = getInventory();
+            Point drop = DropZone(zone,DROP_TYPE).match;
+            clickhere(drop.x, drop.y, 1);
         }
         TimeOps::randsleep(0,1);
     }
@@ -168,7 +181,13 @@ struct DesktopOps {
 Display *DesktopOps::disp = XOpenDisplay(NULL);
 Window DesktopOps::root = DefaultRootWindow(DesktopOps::disp);
 
-Point DesktopOps::window_coords(0,0);
-Point DesktopOps::window_dims(0,0);
+
+//init to Point(0,0)
+Point DesktopOps::window_coords;
+Point DesktopOps::window_dims;
+
+Point DesktopOps::inventory_dims = Point(
+            DesktopOps::window_dims.x/3,
+            DesktopOps::window_dims.y/3);
 
 #endif

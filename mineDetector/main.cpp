@@ -5,26 +5,21 @@
 
 int main(int argc, char ** argv)
 {
-    Args *arg = new Args(argc,argv);
+    Args arg = Args(argc,argv);
 
-    uint digtime_max_limit = arg->maxdig;
+    uint digtime_max_limit = arg.maxdig;
     uint player_idle_thresh = 3;
 
-    DesktopOps::window_coords = Point(arg->topleft_x, arg->topleft_y);
-    DesktopOps::window_dims = Point(arg->width, arg->height);
+    DesktopOps::window_coords = Point(arg.topleft_x, arg.topleft_y);
+    DesktopOps::window_dims = Point(arg.width, arg.height);
 
     Point player_coords(
                 DesktopOps::window_dims.x/2,
                 DesktopOps::window_dims.y/2);
 
-    bool xdo = arg->xdo, nearest = arg->nearest, debug = arg->debug;
-    int runs = arg->runs;
-
-    if(arg->early.empty()) //Images not given, get
+    if(arg.early.empty()) //Images not given, get
     {
-		delete arg;
-
-        int run_count = (runs==-1)?INT_MAX:runs;
+        int run_count = (arg.runs==-1)?INT_MAX:arg.runs;
         uint total_digtime_elapsed = 0;
         uint player_idle_total = 0;
 
@@ -49,7 +44,7 @@ int main(int argc, char ** argv)
             // Check on player movement
             plf = new PlayerFinder(player_coords,
                                    early, later,
-                                   debug);
+                                   arg.debug);
 
             // player idle how many times in row?
             if(plf->is_idle) player_idle_total += 1;
@@ -68,17 +63,17 @@ int main(int argc, char ** argv)
             {
                 OreFinder *orf = new OreFinder (
                             early, later,
-                            debug);
+                            arg.debug);
 
                 keyvect ore_locs(orf->ore_locs);
 				delete orf;
 
-                if (xdo && ore_locs.size() > 1){
+                if (arg.xdo && ore_locs.size() > 1){
                     DesktopOps::dropOre();
 
                     DesktopOps::clickOnOne(
                                 ore_locs,
-                                nearest,
+                                arg.nearest,
                                 player_coords);
 
                     //Reset
@@ -91,11 +86,10 @@ int main(int argc, char ** argv)
 //        delete display;
     }
     else {
-        Mat early = imread(arg->early), later = imread(arg->later);
+        Mat early = imread(arg.early), later = imread(arg.later);
         player_coords = Point(early.cols/2, early.rows/2);
 
-        PlayerFinder (player_coords, early, later, debug);
-        OreFinder(early, later, arg->debug);
-        delete arg;
+        PlayerFinder (player_coords, early, later, arg.debug);
+        OreFinder(early, later, arg.debug);
     }
 }
