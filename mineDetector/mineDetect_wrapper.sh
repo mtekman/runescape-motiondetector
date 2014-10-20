@@ -11,4 +11,4 @@ ypos=`echo "$data"   | grep Absol | awk '{ print $4 }' | tail -1`
 width=`echo "$data"  | grep Width | awk '{ print $NF }' | head -1`
 height=`echo "$data" | grep Height | awk '{ print $NF }' | head -1`
 
-$mine_bin $xpos $ypos $width $height --xdo --nearest
+$mine_bin $xpos $ypos $width $height --xdo 

@@ -58,11 +58,13 @@ struct DesktopOps {
     static Mat getInventory(){
         Mat invent;
         populateMat(invent, inventory_dims.x, inventory_dims.y);
+
         return invent;
     }
 
 
     static Point findOre(bool choose_random){
+
         if (choose_random){
             //Statically defined by inventory in top left corner
             // 3x3 window should be, each approx 40 pixels WxH
@@ -89,6 +91,7 @@ struct DesktopOps {
         // Right click on Ore
         Point ore_point = findOre(choose_random);
         clickhere(ore_point.x, ore_point.y, 3);
+        TimeOps::randsleep(1,2);
 
         //Drop it if random, else find the 'Drop' part
         if (choose_random){
@@ -107,14 +110,31 @@ struct DesktopOps {
     }
 
 
-    static void clickOnOne(keyvect orelocs, bool click_nearest, Point2f player_coords, Point &top_coords= window_coords)
+    static bool pickSignUp(){
+        Mat top_center;
+
+        int width = window_dims.x/4, height = window_dims.y/6;
+        int startx = window_coords.x + (window_dims.x/2) - (width/2);
+        int starty = window_coords.y + 0;
+
+        populateMat(top_center, width, height, startx, starty);
+        return DropZone(top_center,PICK_TYPE).match!=DropZone::pick_offset_xy;
+    }
+
+
+    static void clickOnOne(
+            keyvect orelocs,
+            bool click_nearest,
+            Point2f player_coords)
     {
         KeyPoint at;
 
         if (click_nearest){
-            float min_dist = 1 << 30;
+            float min_dist = 999999999999999;
 
-            for (keyvect::iterator kit = orelocs.begin(); kit!=orelocs.end(); ++kit){
+            for (keyvect::iterator kit = orelocs.begin();
+                 kit!=orelocs.end(); ++kit)
+            {
                 KeyPoint curr = *kit;
 
                 float dist = BlobOps::dist_between(player_coords, curr.pt);
@@ -131,7 +151,7 @@ struct DesktopOps {
 
         cerr << "-- choosing: [" << at.pt.x << "," << at.pt.y << "]" << endl;
 
-        clickhere(at.pt.x, at.pt.y, top_coords.x, top_coords.y);
+        clickhere(at.pt.x, at.pt.y, 1);//, top_coords.x, top_coords.y);
     }
 
     static void charbychar(char * start, int len){
@@ -172,7 +192,7 @@ struct DesktopOps {
                 topl_x, x,
                 topl_y, y,
                 mouse);
-    //    printf(buffer,stderr);
+//        printf(buffer,stderr);
         system(buffer);
     }
 };
@@ -186,8 +206,6 @@ Window DesktopOps::root = DefaultRootWindow(DesktopOps::disp);
 Point DesktopOps::window_coords;
 Point DesktopOps::window_dims;
 
-Point DesktopOps::inventory_dims = Point(
-            DesktopOps::window_dims.x/3,
-            DesktopOps::window_dims.y/3);
+Point DesktopOps::inventory_dims;
 
 #endif

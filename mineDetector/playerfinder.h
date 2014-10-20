@@ -23,6 +23,13 @@ struct PlayerFinder{
 
         Mat diff_player = later_player - early_player;
 
+
+        //Delete blue channel
+        Mat allc[3];
+        split(diff_player, allc);
+        allc[2] = Mat::zeros(diff_player.size(),CV_8UC1);
+        merge(allc, 3, diff_player);
+
         Mat bw_diff;
         cvtColor(diff_player, bw_diff, CV_RGB2GRAY);
 
@@ -42,9 +49,9 @@ struct PlayerFinder{
             showIMG(debugger, 1300, 10);
         }
 
-        //Threshold of movement determined to be at 60 by testing
+        //Threshold of movement determined by average testing via movement_debugger.sh
         move_pix = countNonZero(bw_diff);
-        is_idle = move_pix < 100;
+        is_idle = move_pix < 70;
 
         if (debug)
             cerr << "Player idle?" << is_idle << ", movePix:" << move_pix << endl;

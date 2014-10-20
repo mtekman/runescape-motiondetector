@@ -1,8 +1,12 @@
 #ifndef OREOPS_H
 #define OREOPS_H
 
+
+//#define DEBUG
+
 #define ORE_TYPE "ore"
 #define DROP_TYPE "drop"
+#define PICK_TYPE "pick"
 
 #include "typedefs.h"
 #include "cvfuncs.h"
@@ -15,7 +19,11 @@ class DropZone {
     static Mat ore_template;
     static Point ore_offset_xy;
 
+    static Mat pick_template;
+
 public:
+    static Point pick_offset_xy;
+
     Point match;
 
     DropZone(Mat &scan_area, const char * type)
@@ -26,21 +34,26 @@ public:
         else if (type==DROP_TYPE){
             match = track(scan_area, drop_template, drop_offset_xy);
         }
+        else if (type==PICK_TYPE){
+            match = track(scan_area, pick_template, pick_offset_xy);
+        }
+
         else {
             cerr << "Problem..." << endl;
             exit(-1);
         }
 
 #ifdef DEBUG
-        KeyPoint kp;
-        kp.pt = match;
-        kp.size = 1;
+        if (type==PICK_TYPE){
+            KeyPoint kp;
+            kp.pt = match;
+            kp.size = 1;
 
-        showIMG(scan_area,900,0);
-        CVFuncs::addBlob2Image(kp, scan_area, 0);
-        showIMG(scan_area,900,0);
+            showIMG(scan_area,900,0);
+            CVFuncs::addBlob2Image(kp, scan_area, 0);
+            showIMG(scan_area,900,0);
+        }
 #endif
-
     }
 
 private:
@@ -62,7 +75,7 @@ private:
 
 };
 
-Mat DropZone::drop_template = imread("drop_template.jpg");
+Mat DropZone::drop_template = imread("drop_template2.jpg");
 
 Point DropZone::drop_offset_xy = Point(
             DropZone::drop_template.cols/2,
@@ -75,5 +88,13 @@ Mat DropZone::ore_template = imread("ore_template.jpg");
 Point DropZone::ore_offset_xy = Point(
             DropZone::ore_template.cols/2,
             DropZone::ore_template.rows/2);
+
+
+Mat DropZone::pick_template = imread("pick_template.jpg");
+
+Point DropZone::pick_offset_xy = Point(
+            DropZone::pick_template.cols/2,
+            DropZone::pick_template.rows/2);
+
 
 #endif

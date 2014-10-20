@@ -16,6 +16,7 @@ struct OreFinder{
         DiffImage di(early,later);
         BlobProfile twink(di.fgmask);
 
+
         filterPreviousBlacks(early, later, twink.keypoints, debug);
 
         if (debug){

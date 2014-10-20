@@ -30,7 +30,6 @@ struct TwinkleParams : Params{
 
 
 class BlobProfile{
-   //*blob_detector;
     Params *pm;
 
 public:

@@ -13,15 +13,21 @@ int main(int argc, char ** argv)
     DesktopOps::window_coords = Point(arg.topleft_x, arg.topleft_y);
     DesktopOps::window_dims = Point(arg.width, arg.height);
 
+    DesktopOps::inventory_dims = Point(
+                DesktopOps::window_dims.x/3,
+                DesktopOps::window_dims.y/3);
+
     Point player_coords(
                 DesktopOps::window_dims.x/2,
                 DesktopOps::window_dims.y/2);
 
     if(arg.early.empty()) //Images not given, get
-    {
+    {         
         int run_count = (arg.runs==-1)?INT_MAX:arg.runs;
+
         uint total_digtime_elapsed = 0;
         uint player_idle_total = 0;
+        uint pick_sign_consec = 0;
 
         PlayerFinder *plf;
 
@@ -69,19 +75,35 @@ int main(int argc, char ** argv)
 				delete orf;
 
                 if (arg.xdo && ore_locs.size() > 1){
-                    DesktopOps::dropOre();
 
                     DesktopOps::clickOnOne(
                                 ore_locs,
                                 arg.nearest,
-                                player_coords);
-
+                                player_coords);                   
                     //Reset
                     total_digtime_elapsed =0;
                     player_idle_total = 0;
                     cerr << "Digging..." << endl;
                 }
             }
+            else {
+                // Player is now assumedly digging, while doing so -- check for completion
+
+                if (DesktopOps::pickSignUp()){
+//                    //If found more than once consecutivey
+//                    //then set player_consecutive_idle_status beyond thresh.
+
+//                    if (++pick_sign_consec>=1){
+                        player_idle_total = player_idle_thresh + 1;
+//                        pick_sign_consec = 0;
+
+                        //Drop ore after digging
+                        cerr << "Found Pick sign, dropping ore "<< endl;
+                        DesktopOps::dropOre();
+                        DesktopOps::dropOre();
+                    }
+                }
+//            }
         }
 //        delete display;
     }
