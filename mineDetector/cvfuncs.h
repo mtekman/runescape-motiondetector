@@ -83,7 +83,7 @@ struct CVFuncs{
 
     static void addText2Image(float val, int x, int y, Mat &img){
         //Add text
-        char s[5]; sprintf(s,"P %.4f", val);
+        char s[5]; sprintf(s,"[%d,%d] = %.4f", x,y, val);
 
         putText(img, s , cvPoint(x, y),
                 FONT_HERSHEY_COMPLEX_SMALL, 0.5, cvScalar(200,200,250), 1, CV_AA);

@@ -27,7 +27,7 @@ int main(int argc, char ** argv)
 
         uint total_digtime_elapsed = 0;
         uint player_idle_total = 0;
-        uint pick_sign_consec = 0;
+//        uint pick_sign_consec = 0;
 
         PlayerFinder *plf;
 
@@ -113,5 +113,11 @@ int main(int argc, char ** argv)
 
         PlayerFinder (player_coords, early, later, arg.debug);
         OreFinder(early, later, arg.debug);
+
+
+//        cerr << "Val = "
+//             << DesktopOps::testdropOre(early(Rect(0,0,early.cols/3, early.rows/3)))
+//             << endl;
+
     }
 }

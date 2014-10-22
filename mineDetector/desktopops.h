@@ -1,7 +1,6 @@
 #ifndef DESKTOP_H
 #define DESKTOP_H
 
-
 #include "timeops.h"
 #include "typedefs.h"
 #include "blobops.h"
@@ -86,10 +85,13 @@ struct DesktopOps {
     }
 
 
-    static void dropOre(bool choose_random=false)
+    static int dropOre(bool choose_random=false)
     {
         // Right click on Ore
         Point ore_point = findOre(choose_random);
+
+        if (ore_point==INVALID) return -1;
+
         clickhere(ore_point.x, ore_point.y, 3);
         TimeOps::randsleep(1,2);
 
@@ -102,12 +104,43 @@ struct DesktopOps {
             clickhere(ore_point.x, ore_point.y, 1); // left click off
         }
         else{
-            Mat zone = getInventory();
-            Point drop = DropZone(zone,DROP_TYPE).match;
+            int num_attempts=0;
+            Point drop;
+
+            while (true){
+                Mat zone = getInventory();
+                drop = DropZone(zone,DROP_TYPE).match;
+
+                if (drop==INVALID){
+                    if (++num_attempts > 2) return -1;
+                }
+                else break;
+            }
             clickhere(drop.x, drop.y, 1);
         }
         TimeOps::randsleep(0,1);
+        return 0;
     }
+
+
+    static int testdropOre(Mat zone)
+    {
+        int num_attempts=0;
+
+        while (true){
+//            Mat zone = getInventory();
+            Point drop = DropZone(zone,DROP_TYPE).match;
+
+            if (drop==INVALID){
+                if (++num_attempts > 2) return -1;
+            }
+            else break;
+        }
+//        clickhere(drop.x, drop.y, 1);
+        return 0;
+    }
+
+
 
 
     static bool pickSignUp(){
@@ -118,8 +151,17 @@ struct DesktopOps {
         int starty = window_coords.y + 0;
 
         populateMat(top_center, width, height, startx, starty);
-        return DropZone(top_center,PICK_TYPE).match!=DropZone::pick_offset_xy;
+        return DropZone(top_center,PICK_TYPE).match != Point(0,0);
     }
+
+//    static bool testpickSignUp(Mat test){
+//        int width = test.cols/4, height = test.rows/6;
+//        int startx = 0 + (test.cols/2) - (width/2);
+//        int starty = 0 + 0;
+
+//        Mat top_center = test( Rect(startx, starty, width, height ));
+//        return DropZone(top_center,PICK_TYPE).match != Point(0,0);
+//    }
 
 
     static void clickOnOne(

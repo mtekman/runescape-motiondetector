@@ -16,7 +16,6 @@ struct OreFinder{
         DiffImage di(early,later);
         BlobProfile twink(di.fgmask);
 
-
         filterPreviousBlacks(early, later, twink.keypoints, debug);
 
         if (debug){
@@ -52,7 +51,7 @@ struct OreFinder{
     {
         int range = 5;
         int step = 3;
-        float limit = 100;
+        float limit = 500;
 
         for (keyvect::iterator it= keypoints.begin();it != keypoints.end();)
         {
@@ -64,10 +63,10 @@ struct OreFinder{
                 cerr << pt.x << "--" << pt.y << endl;
             }
 
-            float min_sq= 999999999999;
-            Point min;
-            Vec3b chosen_set [2];
-//            bool good2go=false;
+            bool good2go=false;
+
+            float one_pixel_set_b =0, one_pixel_set_g =0, one_pixel_set_r =0;
+            float two_pixel_set_b =0, two_pixel_set_g =0, two_pixel_set_r =0;
 
             for (int c=-range; c< range ;c += step){
                 for (int s= -range; s < range; s += step){
@@ -77,36 +76,31 @@ struct OreFinder{
                     uchar &b1 = pixel_set1[0], &g1 = pixel_set1[1], &r1 = pixel_set1[2];
                     uchar &b2 = pixel_set2[0], &g2 = pixel_set2[1], &r2 = pixel_set2[2];
 
-                    //                    float pic_diff = (float)(b1+g1+r1)/(b2+g2+r2);
-                    //                    if (pic_diff < (1/limit) || pic_diff > limit){
+                    one_pixel_set_b += b1; one_pixel_set_g += g1; one_pixel_set_r += r1;
+                    two_pixel_set_b += b2; two_pixel_set_g += g2; two_pixel_set_r += r2;
 
-                    if (b1 < limit || g1 < limit || r1 < limit
-                            || b2 < limit || g2 < limit || r2 < limit){
-
-                        float square = c*c + s*s;
-                        if (square < min_sq){
-                            min_sq = square;
-                            min.x = c;
-                            min.y = s;
-                            chosen_set[0] = pixel_set1;
-                            chosen_set[1] = pixel_set2;
-//                            good2go = true;
-                        }
-                    }
                 }
             }
-//            kp.pt.x += min.x;
-//            kp.pt.y += min.y;
+
+            float b_on_g_1 = (one_pixel_set_b/one_pixel_set_g), g_on_r_1 = (one_pixel_set_g/one_pixel_set_r);
+            float b_on_g_2 = (two_pixel_set_b/two_pixel_set_g), g_on_r_2 = (two_pixel_set_g/two_pixel_set_r);
+
+            float bgr1 = (b_on_g_1/g_on_r_1), bgr2 = (b_on_g_2/g_on_r_2);
+
+
+            if (    (one_pixel_set_b > 2)
+                    &&
+                    ((bgr1 > 0.6 && bgr1 < 1.1 && one_pixel_set_b < limit)
+                    ||
+                    (bgr2 > 0.6 && bgr2 < 1.1 && two_pixel_set_b < limit))) good2go = true;
 
             if (debug){
-                cerr << "[" << kp.pt.x << "," << kp.pt.y << "] = " << flush;
-                cerr << (int)chosen_set[0][0] << " " << (int)chosen_set[0][1] << " " << (int)chosen_set[0][2] << "," << flush;
-                cerr << (int)chosen_set[1][0] << " " << (int)chosen_set[1][1] << " " << (int)chosen_set[1][2] << endl;
+                cerr << "[" << pt.x << "," << pt.y << "] = " << flush;
+                cerr << b_on_g_1 << " " << g_on_r_1 << " " << bgr1 << " " << one_pixel_set_b << ", " << flush;
+                cerr << b_on_g_2 << " " << g_on_r_2 << " " << bgr2 << " " << two_pixel_set_b << " == " << good2go << endl;
             }
 
-            //If neither are within lim, delete
-            if (chosen_set[0] == Vec3b({0,0,0}))
-//            if (!good2go)
+            if (!good2go)
             {
                 it = keypoints.erase(it); //give next iterator
             }
