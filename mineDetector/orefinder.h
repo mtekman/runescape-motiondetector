@@ -16,13 +16,13 @@ struct OreFinder{
         DiffImage di(early,later);
         BlobProfile twink(di.fgmask);
 
-        filterPreviousBlacks(early, later, twink.keypoints, debug);
+//        filterPreviousBlacks(early, later, twink.keypoints, debug);
 
         if (debug){
             Mat debbie = early.clone()/2 + later.clone()/2;
             debbie /= 3;
 
-            showIMG(debbie, 100,0);
+            showIMG(debbie);
 
             Mat debbie2;
             vector<Mat> vec;
@@ -32,11 +32,11 @@ struct OreFinder{
             debbie2 /= 1.5;
 
             Mat king = debbie + debbie2;
-            showIMG(king, 100, 0);
+            showIMG(king);
 
             CVFuncs::addBlobVect2Image(twink.keypoints, king);
-            showIMG(king, 100, 0);
-            showIMG(di.fgmask,100,0);
+            showIMG(king);
+            showIMG(di.fgmask);
         }
         ore_locs = twink.keypoints;
     }

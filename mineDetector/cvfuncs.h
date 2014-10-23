@@ -65,7 +65,7 @@ struct CVFuncs{
 
         resize(debug_img, debug_img, Size(img.cols/scalef, img.rows/scalef));
 
-        showIMG(debug_img, 1050, 150);
+        showIMG(debug_img);
     }
 
     static void showKeyVectIMG(Mat &img, keyvect &km){
@@ -77,7 +77,7 @@ struct CVFuncs{
 
         resize(debug_img, debug_img, Size(img.cols/scalef, img.rows/scalef));
 
-        showIMG(debug_img, 1050, 150);
+        showIMG(debug_img);
     }
 
 

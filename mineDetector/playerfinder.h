@@ -23,15 +23,34 @@ struct PlayerFinder{
 
         Mat diff_player = later_player - early_player;
 
+        cerr << "fighta" << endl;
+        showIMG(diff_player);
 
-        //Delete blue channel
-        Mat allc[3];
-        split(diff_player, allc);
-        allc[2] = Mat::zeros(diff_player.size(),CV_8UC1);
-        merge(allc, 3, diff_player);
 
-        Mat bw_diff;
-        cvtColor(diff_player, bw_diff, CV_RGB2GRAY);
+        //Extract blue channel as a binary image {0,255}
+        Mat blue;
+        inRange(later, Scalar(90,50,50), Scalar(150,255,255), blue);
+
+        Mat blue_filler = Mat::ones(int(blue.rows), int(blue.cols), CV_8U);
+
+        Mat all;
+        merge({blue,blue_filler, blue_filler}, all);
+
+        cerr <<  "sore?" << endl;
+        showHSV(later);
+        showIMG(all);
+        showHSV(later);
+
+
+        Mat new_later = later - all; // minus 255 from value
+        cerr << "here?" << endl;
+
+        showHSV(new_later);
+        exit(0);
+
+        Mat hsver[3];
+        split(diff_player, hsver);
+        Mat bw_diff = hsver[2]; // Value component == brightness == greyscale
 
         int erosion_size= 2;
         Mat element = getStructuringElement(MORPH_ELLIPSE,
@@ -46,7 +65,7 @@ struct PlayerFinder{
             vconcat(early_player, later_player, debugger);
             vconcat(debugger, diff_player, debugger);
 
-            showIMG(debugger, 1300, 10);
+            showIMG(debugger);
         }
 
         //Threshold of movement determined by average testing via movement_debugger.sh

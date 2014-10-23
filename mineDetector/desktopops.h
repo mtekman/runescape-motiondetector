@@ -45,10 +45,16 @@ struct DesktopOps {
         }
 
         Mat src_img(iplImage);
-        cvtColor(src_img,img,CV_BGRA2BGR); //Remove alpha in Ximage  4 channel --> 3
+        cerr << "skepbe" << endl;
 
+        cvtColor(src_img,src_img,CV_BGRA2BGR); //Remove alpha in Ximage  4 channel --> 3
+        cerr << "skebe1" << endl;
+        cvtColor(src_img, img, CV_BGR2HSV); // Hue Sat Light
+        cerr << "skebe2" << endl;
 
         cvReleaseImageHeader(&iplImage);
+        cerr << "skebe3" << endl;
+
         XDestroyImage(xImageSample);
     }
 
@@ -151,7 +157,7 @@ struct DesktopOps {
         int starty = window_coords.y + 0;
 
         populateMat(top_center, width, height, startx, starty);
-        return DropZone(top_center,PICK_TYPE).match != Point(0,0);
+        return DropZone(top_center,PICK_TYPE).match != INVALID;
     }
 
 //    static bool testpickSignUp(Mat test){
