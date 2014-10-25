@@ -8,18 +8,21 @@ using namespace std;
 
 typedef vector<cv::KeyPoint> keyvect;
 typedef map<float,KeyPoint> keymap;
-//typedef map<float,KeyPoint[2]> compmap;
 
-#define HULK_X 1000
+#define DEBUGIMG false
+//#define DEBUGIMG true
+
+
+#define HULK_X 200
 #define HULK_Y 10
 
-#define showIMG(img)\
-    imshow("img", img); moveWindow("img",HULK_X,HULK_Y);waitKey(0)
+#define showIMG(img, title)\
+    if(DEBUGIMG) imshow(title, img); moveWindow(title,HULK_X,HULK_Y);waitKey(0)
 
+#define showHSV(img, title)\
+    if (DEBUGIMG){Mat bgr; cvtColor(img,bgr,CV_HSV2BGR);\
+    imshow(title, bgr); moveWindow(title,HULK_X,HULK_Y);waitKey(0);}
 
-#define showHSV(img)\
-    if (true){Mat bgr; cvtColor(img,bgr,CV_HSV2BGR);\
-    imshow("img", bgr); moveWindow("img",HULK_X,HULK_Y);waitKey(0);}
 
 
 #endif

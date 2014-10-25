@@ -14,15 +14,16 @@ struct OreFinder{
     {
         //Diff images
         DiffImage di(early,later);
+        di.fgmask = di.fgmask > 150;
         BlobProfile twink(di.fgmask);
 
-//        filterPreviousBlacks(early, later, twink.keypoints, debug);
+        filterPreviousBlacks(early, later, twink.keypoints, debug);
 
         if (debug){
             Mat debbie = early.clone()/2 + later.clone()/2;
             debbie /= 3;
 
-            showIMG(debbie);
+            showHSV(debbie, "init");
 
             Mat debbie2;
             vector<Mat> vec;
@@ -32,11 +33,11 @@ struct OreFinder{
             debbie2 /= 1.5;
 
             Mat king = debbie + debbie2;
-            showIMG(king);
+            showHSV(king, "king");
 
             CVFuncs::addBlobVect2Image(twink.keypoints, king);
-            showIMG(king);
-            showIMG(di.fgmask);
+            showHSV(king, "king+blobs");
+            showIMG(di.fgmask, "diff mask");
         }
         ore_locs = twink.keypoints;
     }
@@ -50,8 +51,10 @@ struct OreFinder{
             keyvect &keypoints, bool &debug)
     {
         int range = 5;
-        int step = 3;
-        float limit = 500;
+        int step = 1;
+        int l_lim = 1000;
+
+        int div = (4*range*range)/(step*step);
 
         for (keyvect::iterator it= keypoints.begin();it != keypoints.end();)
         {
@@ -65,45 +68,40 @@ struct OreFinder{
 
             bool good2go=false;
 
-            float one_pixel_set_b =0, one_pixel_set_g =0, one_pixel_set_r =0;
-            float two_pixel_set_b =0, two_pixel_set_g =0, two_pixel_set_r =0;
+            uint ss1=0,ll1=0;
+            uint ss2=0,ll2=0;
+
+            uint count=0;
 
             for (int c=-range; c< range ;c += step){
                 for (int s= -range; s < range; s += step){
                     Vec3b pixel_set1 = early.at<Vec3b>(pt.x + c, pt.y +s);
                     Vec3b pixel_set2 = later.at<Vec3b>(pt.x + c, pt.y +s);
 
-                    uchar &b1 = pixel_set1[0], &g1 = pixel_set1[1], &r1 = pixel_set1[2];
-                    uchar &b2 = pixel_set2[0], &g2 = pixel_set2[1], &r2 = pixel_set2[2];
+                    uchar &s1 = pixel_set1[1], &l1 = pixel_set1[2];
+                    uchar &s2 = pixel_set2[1], &l2 = pixel_set2[2];
 
-                    one_pixel_set_b += b1; one_pixel_set_g += g1; one_pixel_set_r += r1;
-                    two_pixel_set_b += b2; two_pixel_set_g += g2; two_pixel_set_r += r2;
+                    ss1 += s1; ll1 += l1;
+                    ss2 += s2; ll2 += l2;
 
+                    count ++;
                 }
             }
 
-            float b_on_g_1 = (one_pixel_set_b/one_pixel_set_g), g_on_r_1 = (one_pixel_set_g/one_pixel_set_r);
-            float b_on_g_2 = (two_pixel_set_b/two_pixel_set_g), g_on_r_2 = (two_pixel_set_g/two_pixel_set_r);
+            ss1 /= count; ss2 /= count;
+            ll1 /= count; ll2 /= count;
 
-            float bgr1 = (b_on_g_1/g_on_r_1), bgr2 = (b_on_g_2/g_on_r_2);
+            if ( ll1 < l_lim || ll2 < l_lim ) good2go=true;
+            if ( ll1 <= 2 && ll2 <= 2 && ss1 <= 2 && ss2 <= 2) good2go=false;
 
-
-            if (    (one_pixel_set_b > 2)
-                    &&
-                    ((bgr1 > 0.6 && bgr1 < 1.1 && one_pixel_set_b < limit)
-                    ||
-                    (bgr2 > 0.6 && bgr2 < 1.1 && two_pixel_set_b < limit))) good2go = true;
 
             if (debug){
                 cerr << "[" << pt.x << "," << pt.y << "] = " << flush;
-                cerr << b_on_g_1 << " " << g_on_r_1 << " " << bgr1 << " " << one_pixel_set_b << ", " << flush;
-                cerr << b_on_g_2 << " " << g_on_r_2 << " " << bgr2 << " " << two_pixel_set_b << " == " << good2go << endl;
+                cerr << ss1 << " " << ll1 << ", " << flush;
+                cerr << ss2 << " " << ll2 << " " << " == " << good2go << endl;
             }
 
-            if (!good2go)
-            {
-                it = keypoints.erase(it); //give next iterator
-            }
+            if (!good2go) it = keypoints.erase(it); //give next iterator
             else ++it;
         }
 

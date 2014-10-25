@@ -33,8 +33,12 @@ private:
 
         fgmask = fgmask1 + fgmask2;
 
+        showHSV(fgmask, "1+2");
+
         fgmask /= 50;
         fgmask *= 50;
+
+        showHSV(fgmask, "posterize");
 
         int dilation_size = 4;
 
@@ -42,17 +46,54 @@ private:
                                                      Size( 2*dilation_size + 1, 2*dilation_size+1 ),
                                                      Point( dilation_size, dilation_size ) ));
 
+        showHSV(fgmask, "dilated");
+
         // Filter out non-whites
+        //For HSV we need only to filter for S and V:
+        //  -- low S and high V == white
+        //  -- any S and low V == black
         Mat splitter[3];
         split(fgmask,splitter);
 
-        Mat blue = splitter[0] > 100, green = splitter[1] > 100, red = splitter[2] > 100;
-        Mat blue_on_green = blue/green;
-        Mat green_on_red = green/red;
+        //Low saturation of any hue or brightness will be grey
+//        Mat white_grey_black = splitter[0] & (splitter[1]<50) & splitter[2];
 
-        Mat whiter = (blue_on_green/green_on_red);
-        fgmask = whiter * 230;
+//        Mat white = splitter[0] & (splitter[1]<50) & (splitter[2]>200);
+
+        // Low luminosity of any hue or saturation will still be black
+//        Mat black = splitter[0] & splitter[1] & (splitter[2]<50);
+
+        fgmask = splitter[2];
+//        showIMG(fgmask, "black points only");
     }
 };
 
 #endif
+
+
+/*
+cerr << "fighta" << endl;
+showIMG(diff_player);
+
+
+//Extract blue channel as a binary image {0,255}
+Mat blue;
+inRange(later, Scalar(90,50,50), Scalar(150,255,255), blue);
+
+Mat blue_filler = Mat::ones(int(blue.rows), int(blue.cols), CV_8U);
+
+Mat all;
+merge({blue,blue_filler, blue_filler}, all);
+
+cerr <<  "sore?" << endl;
+showHSV(later);
+showIMG(all);
+showHSV(later);
+
+
+Mat new_later = later - all; // minus 255 from value
+cerr << "here?" << endl;
+
+showHSV(new_later);
+exit(0);
+*/
