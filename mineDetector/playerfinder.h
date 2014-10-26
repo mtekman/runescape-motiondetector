@@ -7,7 +7,7 @@ struct PlayerFinder{
     bool is_idle;
     int move_pix;
 
-    PlayerFinder(Point &player_coords, Mat &early, Mat &later, bool debug)
+    PlayerFinder(Point2f &player_coords, Mat &early, Mat &later, bool debug)
     {
         //Define ROI (region of interest)
         int height = early.rows/10, width= early.cols/10;

@@ -10,35 +10,20 @@ int main(int argc, char ** argv)
     uint digtime_max_limit = arg.maxdig;
     uint player_idle_thresh = 3;
 
-    DesktopOps::window_coords = Point(arg.topleft_x, arg.topleft_y);
-    DesktopOps::window_dims = Point(arg.width, arg.height);
+    PlayerFinder *plf;
 
-    DesktopOps::inventory_dims = Point(
-                DesktopOps::window_dims.x/3,
-                DesktopOps::window_dims.y/3);
-
-    Point player_coords(
-                DesktopOps::window_dims.x/2,
-                DesktopOps::window_dims.y/2);
-
-    if(arg.early.empty()) //Images not given, get
-    {         
+    if (arg.init())
+    {
+        int seconds_between_frames = 1;
         int run_count = (arg.runs==-1)?INT_MAX:arg.runs;
 
         uint total_digtime_elapsed = 0;
         uint player_idle_total = 0;
-//        uint pick_sign_consec = 0;
-
-        PlayerFinder *plf;
-
-        int seconds_between_frames=1;
 
         while(run_count-- >0)
         {
             Mat early, later;
-
             total_digtime_elapsed += TimeOps::randsleep(1,2); //Initial random wait before acting
-
 
             DesktopOps::populateMat(early);
 
@@ -48,9 +33,10 @@ int main(int argc, char ** argv)
             DesktopOps::populateMat(later);
 
             // Check on player movement
-            plf = new PlayerFinder(player_coords,
-                                   early, later,
-                                   arg.debug);
+            plf = new PlayerFinder(
+                        DesktopOps::player_coords,
+                        early, later,
+                        arg.debug);
 
             // player idle how many times in row?
             if(plf->is_idle) player_idle_total += 1;
@@ -64,8 +50,9 @@ int main(int argc, char ** argv)
 
             delete plf;
 
-            if ((player_idle_total > player_idle_thresh)
-                    || (total_digtime_elapsed > digtime_max_limit) )
+            if (    (player_idle_total > player_idle_thresh)
+                    ||
+                    (total_digtime_elapsed > digtime_max_limit) )
             {
                 OreFinder *orf = new OreFinder (
                             early, later,
@@ -78,15 +65,14 @@ int main(int argc, char ** argv)
 
                     DesktopOps::clickOnOne(
                                 ore_locs,
-                                arg.nearest,
-                                player_coords);                   
+                                arg.nearest);
                     //Reset
                     total_digtime_elapsed =0;
                     player_idle_total = 0;
                     cerr << "Digging..." << endl;
                 }
-            }
-            else {
+
+            } else {
                 // Player is now assumedly digging, while doing so -- check for completion
 
                 if (DesktopOps::pickSignUp()){
@@ -108,7 +94,7 @@ int main(int argc, char ** argv)
     }
 
     // ------------------------------------------------------- //
-    // Debugging Area
+    // Playground Area
     // ------------------------------------------------------- //
 
     Mat early = imread(arg.early), later = imread(arg.later);
@@ -116,17 +102,18 @@ int main(int argc, char ** argv)
     cvtColor(early,early,CV_BGR2HSV);
     cvtColor(later, later, CV_BGR2HSV);
 
-    player_coords = Point(early.cols/2, early.rows/2);
-
     //        PlayerFinder (player_coords, early, later, arg.debug);
     //        OreFinder(early, later, arg.debug);
 
     Mat *prt = new Mat(early);
-//    cout << "Pick_sign: " << DesktopOps::pickSignUp(prt) << endl;
-    Point drop = DesktopOps::findOre(false, prt);
+
+    // Test pick:
+    //    cout << "Pick_sign: " << DesktopOps::pickSignUp(prt) << endl;
+
+    // Test drop:
+    Point drop = DesktopOps::findOre(false, 3, prt);
     cout << "Drop sign: " << drop.x << "," << drop.y << endl;
 
-
-//    delete prt;
+    delete prt;
     return 0;
 }

@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "desktopops.h"
+
 using namespace std;
 
 #define VER "v0.8"
@@ -39,6 +41,34 @@ public:
     bool debug, xdo, nearest;
     uint maxdig;
     int runs;
+
+    bool init(){
+        bool loop = false;
+
+        // -- Init --
+        if (early.empty()){
+            loop = true;
+            DesktopOps::window_dims = Point(width, height);
+            DesktopOps::window_coords = Point(topleft_x, topleft_y);
+        }
+        else {
+            Mat earl = imread(early);
+            DesktopOps::window_dims = Point(earl.cols, earl.rows);
+        }
+
+        // -- Init 2 --
+        DesktopOps::inventory_dims = Point(
+                    DesktopOps::window_dims.x/3,
+                    DesktopOps::window_dims.y/3);
+
+        DesktopOps::player_coords = Point(
+                    DesktopOps::window_dims.x/2,
+                    DesktopOps::window_dims.y/2);
+
+        return loop;
+    }
+
+
 
     Args(int argc, char ** argv)
     {

@@ -1,11 +1,14 @@
 #ifndef OREOPS_H
 #define OREOPS_H
 
-#define DEBUG
+//#define DEBUG
 
 #define ORE_TYPE "ore"
 #define DROP_TYPE "drop"
 #define PICK_TYPE "pick"
+
+#define ORE_PLATE_NUM 4
+#define DROP_PLATE_NUM 2
 
 #include "typedefs.h"
 #include "cvfuncs.h"
@@ -17,35 +20,40 @@ class DropZone {
 
     static Point drop_offset_xy;
 
-    static Mat ore_template;
+    static Mat ore_template[ORE_PLATE_NUM];
     static Point ore_offset_xy;
 
     static Mat pick_template;
-    static Mat drop_template[2];
+    static Mat drop_template[DROP_PLATE_NUM];
 
     Mat scan_area;
+    int attempts;
 public:
     static Point pick_offset_xy;
 
     Point match;
 
-    DropZone(Mat &hsv_img, const char * type)
+    DropZone(Mat &hsv_img, const char * type, int att=1)
     {
+        attempts = att;
         cvtColor(hsv_img, scan_area, CV_HSV2BGR);
 
-        if (type==ORE_TYPE){
-            match = track(ore_template, ore_offset_xy);
+        int i=0;
+
+        if (type==ORE_TYPE)
+        {
+            while(i<ORE_PLATE_NUM
+                  && (match = find(ore_template[i],
+                                   ore_offset_xy))==INVALID) i++;
         }
         else if (type==DROP_TYPE){
             //There are two types of DROP templates due to font kerning
-
-            match = track(drop_template[0], drop_offset_xy);
-            if (match==INVALID)
-                match = track(drop_template[1], drop_offset_xy);
-
+            while(i<DROP_PLATE_NUM
+                  && (match = find(drop_template[i],
+                                   drop_offset_xy))==INVALID) i++;
         }
         else if (type==PICK_TYPE){
-            match = track(pick_template, pick_offset_xy);
+            match = find(pick_template, pick_offset_xy);
         }
 
         else {
@@ -69,8 +77,8 @@ private:
     Point track(Mat &temple, Point &offset)
     {
         Mat result;
-        cerr << "img (rows,cols) " << scan_area.rows << "," << scan_area.cols << endl;
-        cerr << "tpl (rows,cols) " << temple.rows << "," << temple.cols << endl;
+//        cerr << "img (rows,cols) " << scan_area.rows << "," << scan_area.cols << endl;
+//        cerr << "tpl (rows,cols) " << temple.rows << "," << temple.cols << endl;
 
         matchTemplate( scan_area, temple, result, CV_TM_SQDIFF_NORMED );
         normalize( result, result, 0, 1, NORM_MINMAX, -1, Mat() );
@@ -79,17 +87,29 @@ private:
         double minVal; double maxVal; Point minLoc; Point maxLoc;
         minMaxLoc( result, &minVal, &maxVal, &minLoc, &maxLoc, Mat() );
 
-        cerr << minVal << " -- " << maxVal << endl;
+//        cerr << minVal << " -- " << maxVal << endl;
         if (minVal==0) return INVALID;
         return minLoc + offset;
+    }
+
+
+    inline Point find(Mat &temple, Point &offset){
+        int ntabc = attempts;
+        while(--ntabc > 0){
+//            cerr << ntabc << "  " << endl;
+            Point res = track(temple, offset);
+            if (res!=INVALID) return res;
+        }
+        return INVALID;
     }
 
 
 };
 
 // Need to fix this, am using the same tempate twice
-Mat DropZone::drop_template[2] =\
- {imread("drop_template.jpg"), imread("drop_template2.jpg")};
+Mat DropZone::drop_template[DROP_PLATE_NUM] =\
+ {imread("drop_template.jpg"),
+  imread("drop_template2.jpg")};
 
 Point DropZone::drop_offset_xy = Point(
             DropZone::drop_template[0].cols/2,
@@ -97,14 +117,19 @@ Point DropZone::drop_offset_xy = Point(
 
 
 
-Mat DropZone::ore_template = imread("ore_template.jpg");
+Mat DropZone::ore_template[ORE_PLATE_NUM] =\
+{imread("ore_template.jpg"),
+ imread("ore_template2.jpg"),
+ imread("ore_template_sub1.jpg"),
+ imread("ore_template_sub2.jpg")};
 
 Point DropZone::ore_offset_xy = Point(
-            DropZone::ore_template.cols/2,
-            DropZone::ore_template.rows/2);
+            DropZone::ore_template[0].cols/2,
+            DropZone::ore_template[0].rows/2);
 
 
-Mat DropZone::pick_template = imread("pick_template.jpg");
+Mat DropZone::pick_template =\
+        imread("pick_template.jpg");
 
 
 Point DropZone::pick_offset_xy = Point(

@@ -20,6 +20,7 @@ struct DesktopOps {
     static Point window_dims;
 
     static Point inventory_dims;
+    static Point2f player_coords;
 
     static void populateMat(Mat &img,
                             int &width = window_dims.x,
@@ -62,11 +63,12 @@ struct DesktopOps {
 
         Mat invent;
         populateMat(invent, inventory_dims.x, inventory_dims.y);
+
         return invent;
     }
 
 
-    static Point findOre(bool choose_random, Mat *test_img=0)
+    static Point findOre(bool choose_random, int attempts=1, Mat *test_img=0)
     {
         if (choose_random){
             //Statically defined by inventory in top left corner
@@ -85,7 +87,7 @@ struct DesktopOps {
 
         // Else find the ore automagically
         Mat inventory = getInventory(test_img);
-        return DropZone(inventory,ORE_TYPE).match;
+        return DropZone(inventory,ORE_TYPE, attempts).match;
     }
 
 
@@ -150,8 +152,7 @@ struct DesktopOps {
 
     static void clickOnOne(
             keyvect orelocs,
-            bool click_nearest,
-            Point2f player_coords)
+            bool click_nearest)
     {
         KeyPoint at;
 
@@ -227,11 +228,13 @@ struct DesktopOps {
 Display *DesktopOps::disp = XOpenDisplay(NULL);
 Window DesktopOps::root = DefaultRootWindow(DesktopOps::disp);
 
-
-//init to Point(0,0)
+//Init to zero and make visible in global scope
 Point DesktopOps::window_coords;
 Point DesktopOps::window_dims;
 
 Point DesktopOps::inventory_dims;
+Point2f DesktopOps::player_coords;
+
+
 
 #endif
