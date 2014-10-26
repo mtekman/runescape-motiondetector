@@ -90,32 +90,43 @@ int main(int argc, char ** argv)
                 // Player is now assumedly digging, while doing so -- check for completion
 
                 if (DesktopOps::pickSignUp()){
-//                    //If found more than once consecutivey
-//                    //then set player_consecutive_idle_status beyond thresh.
+                    //                    //If found more than once consecutivey
+                    //                    //then set player_consecutive_idle_status beyond thresh.
 
-//                    if (++pick_sign_consec>=1){
-                        player_idle_total = player_idle_thresh + 1;
-//                        pick_sign_consec = 0;
+                    //                    if (++pick_sign_consec>=1){
+                    player_idle_total = player_idle_thresh + 1;
+                    //                        pick_sign_consec = 0;
 
-                        //Drop ore after digging
-                        cerr << "Found Pick sign, dropping ore "<< endl;
-                        DesktopOps::dropOre();
-                        DesktopOps::dropOre();
-                    }
+                    //Drop ore after digging
+                    cerr << "Found Pick sign, dropping ore "<< endl;
+                    DesktopOps::dropOre();
+                    DesktopOps::dropOre();
                 }
-//            }
+            }
         }
-//        delete display;
+        return 0;
     }
-    else {
-        Mat early = imread(arg.early), later = imread(arg.later);
-        cvtColor(early,early,CV_BGR2HSV);
-        cvtColor(later, later, CV_BGR2HSV);
 
-//        player_coords = Point(early.cols/2, early.rows/2);
+    // ------------------------------------------------------- //
+    // Debugging Area
+    // ------------------------------------------------------- //
 
-//        PlayerFinder (player_coords, early, later, arg.debug);
-        OreFinder(early, later, arg.debug);
+    Mat early = imread(arg.early), later = imread(arg.later);
 
-    }
+    cvtColor(early,early,CV_BGR2HSV);
+    cvtColor(later, later, CV_BGR2HSV);
+
+    player_coords = Point(early.cols/2, early.rows/2);
+
+    //        PlayerFinder (player_coords, early, later, arg.debug);
+    //        OreFinder(early, later, arg.debug);
+
+    Mat *prt = new Mat(early);
+//    cout << "Pick_sign: " << DesktopOps::pickSignUp(prt) << endl;
+    Point drop = DesktopOps::findOre(false, prt);
+    cout << "Drop sign: " << drop.x << "," << drop.y << endl;
+
+
+//    delete prt;
+    return 0;
 }

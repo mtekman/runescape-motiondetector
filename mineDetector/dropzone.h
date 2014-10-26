@@ -1,7 +1,7 @@
 #ifndef OREOPS_H
 #define OREOPS_H
 
-//#define DEBUG
+#define DEBUG
 
 #define ORE_TYPE "ore"
 #define DROP_TYPE "drop"
@@ -23,26 +23,29 @@ class DropZone {
     static Mat pick_template;
     static Mat drop_template[2];
 
+    Mat scan_area;
 public:
     static Point pick_offset_xy;
 
     Point match;
 
-    DropZone(Mat &scan_area, const char * type)
+    DropZone(Mat &hsv_img, const char * type)
     {
+        cvtColor(hsv_img, scan_area, CV_HSV2BGR);
+
         if (type==ORE_TYPE){
-            match = track(scan_area, ore_template, ore_offset_xy);
+            match = track(ore_template, ore_offset_xy);
         }
         else if (type==DROP_TYPE){
             //There are two types of DROP templates due to font kerning
 
-            match = track(scan_area, drop_template[0], drop_offset_xy);
+            match = track(drop_template[0], drop_offset_xy);
             if (match==INVALID)
-                match = track(scan_area, drop_template[1], drop_offset_xy);
+                match = track(drop_template[1], drop_offset_xy);
 
         }
         else if (type==PICK_TYPE){
-            match = track(scan_area, pick_template, pick_offset_xy);
+            match = track(pick_template, pick_offset_xy);
         }
 
         else {
@@ -51,42 +54,42 @@ public:
         }
 
 #ifdef DEBUG
-        if (type==DROP_TYPE){
-            KeyPoint kp;
-            kp.pt = match;
-            kp.size = 5;
+        KeyPoint kp;
+        kp.pt = match;
+        kp.size = 5;
 
-            showIMG(scan_area,900,0);
-            CVFuncs::addBlob2Image(kp, scan_area, 0);
-            showIMG(scan_area,900,0);
-        }
+        cerr << "Match at=" << match.x << "," << match.y << endl;
+        showHSV(scan_area, "scan");
+        CVFuncs::addBlob2Image(kp, scan_area, 0);
+        showHSV(scan_area, "blobs");
 #endif
     }
 
 private:
-    Point track(Mat &img, Mat &temple, Point &offset)
+    Point track(Mat &temple, Point &offset)
     {
         Mat result;
-//        cerr << "img rows = " << img.rows << ", cols=" << img.cols << endl;
-//        cerr << "tpl rows = " << temple.rows << ", cols=" << temple.cols << endl;
-        matchTemplate( img, temple, result, CV_TM_SQDIFF_NORMED );
+        cerr << "img (rows,cols) " << scan_area.rows << "," << scan_area.cols << endl;
+        cerr << "tpl (rows,cols) " << temple.rows << "," << temple.cols << endl;
+
+        matchTemplate( scan_area, temple, result, CV_TM_SQDIFF_NORMED );
         normalize( result, result, 0, 1, NORM_MINMAX, -1, Mat() );
 
         // Localizing the best match with minMaxLoc
         double minVal; double maxVal; Point minLoc; Point maxLoc;
         minMaxLoc( result, &minVal, &maxVal, &minLoc, &maxLoc, Mat() );
 
+        cerr << minVal << " -- " << maxVal << endl;
         if (minVal==0) return INVALID;
-//        cerr << minVal << " -- " << minVal << endl;
         return minLoc + offset;
     }
 
 
 };
 
-
+// Need to fix this, am using the same tempate twice
 Mat DropZone::drop_template[2] =\
- {imread("drop_template3.jpg"), imread("drop_template.jpg")};
+ {imread("drop_template.jpg"), imread("drop_template2.jpg")};
 
 Point DropZone::drop_offset_xy = Point(
             DropZone::drop_template[0].cols/2,
@@ -102,6 +105,7 @@ Point DropZone::ore_offset_xy = Point(
 
 
 Mat DropZone::pick_template = imread("pick_template.jpg");
+
 
 Point DropZone::pick_offset_xy = Point(
             DropZone::pick_template.cols/2,

@@ -45,31 +45,29 @@ struct DesktopOps {
         }
 
         Mat src_img(iplImage);
-        cerr << "skepbe" << endl;
-
         cvtColor(src_img,src_img,CV_BGRA2BGR); //Remove alpha in Ximage  4 channel --> 3
-        cerr << "skebe1" << endl;
         cvtColor(src_img, img, CV_BGR2HSV); // Hue Sat Light
-        cerr << "skebe2" << endl;
 
         cvReleaseImageHeader(&iplImage);
-        cerr << "skebe3" << endl;
 
         XDestroyImage(xImageSample);
     }
 
 
 
-    static Mat getInventory(){
+    static Mat getInventory(Mat *test_img=0)
+    {
+        if (test_img!=0)
+            return (*test_img)(Rect(0,0,inventory_dims.x, inventory_dims.y));
+
         Mat invent;
         populateMat(invent, inventory_dims.x, inventory_dims.y);
-
         return invent;
     }
 
 
-    static Point findOre(bool choose_random){
-
+    static Point findOre(bool choose_random, Mat *test_img=0)
+    {
         if (choose_random){
             //Statically defined by inventory in top left corner
             // 3x3 window should be, each approx 40 pixels WxH
@@ -86,7 +84,7 @@ struct DesktopOps {
         }
 
         // Else find the ore automagically
-        Mat inventory = getInventory();
+        Mat inventory = getInventory(test_img);
         return DropZone(inventory,ORE_TYPE).match;
     }
 
@@ -129,45 +127,25 @@ struct DesktopOps {
     }
 
 
-    static int testdropOre(Mat zone)
-    {
-        int num_attempts=0;
-
-        while (true){
-//            Mat zone = getInventory();
-            Point drop = DropZone(zone,DROP_TYPE).match;
-
-            if (drop==INVALID){
-                if (++num_attempts > 2) return -1;
-            }
-            else break;
-        }
-//        clickhere(drop.x, drop.y, 1);
-        return 0;
-    }
-
-
-
-
-    static bool pickSignUp(){
+    static bool pickSignUp(Mat *img=0){
         Mat top_center;
 
-        int width = window_dims.x/4, height = window_dims.y/6;
+        int width = window_dims.x/6, height = window_dims.y/6;
         int startx = window_coords.x + (window_dims.x/2) - (width/2);
         int starty = window_coords.y + 0;
 
-        populateMat(top_center, width, height, startx, starty);
+        if (img==0) populateMat(top_center, width, height, startx, starty);
+        else {
+            width  = img->cols/4;
+            height = img->rows/6;
+            startx = (img->cols/2) - (width/2);
+            starty = 0;
+
+            top_center = (*img)( Rect(startx, starty, width, height ));
+        }
+
         return DropZone(top_center,PICK_TYPE).match != INVALID;
     }
-
-//    static bool testpickSignUp(Mat test){
-//        int width = test.cols/4, height = test.rows/6;
-//        int startx = 0 + (test.cols/2) - (width/2);
-//        int starty = 0 + 0;
-
-//        Mat top_center = test( Rect(startx, starty, width, height ));
-//        return DropZone(top_center,PICK_TYPE).match != Point(0,0);
-//    }
 
 
     static void clickOnOne(

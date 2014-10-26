@@ -18,8 +18,8 @@ struct PlayerFinder{
                     width,
                     height);
 
-        Mat early_player(early,roi);
-        Mat later_player(later, roi);
+        Mat early_player = early(roi);
+        Mat later_player = later(roi);
 
         Mat diff_player = later_player - early_player;
 
@@ -31,16 +31,32 @@ struct PlayerFinder{
         Mat element = getStructuringElement(MORPH_ELLIPSE,
                                             Size( 2*erosion_size + 1, 2*erosion_size+1 ),
                                             Point( erosion_size, erosion_size ) );
+
         erode(bw_diff, bw_diff, element);
+
+        // Find the blue regiion..
+        Mat get_blue;
+        inRange(early_player, Scalar(90,50,50), Scalar(150,255,255), get_blue);
+
+        //.. and remove it from analysis
+//        cout << "Non-zero = " << countNonZero(bw_diff) << endl;
+
+        bw_diff = bw_diff - get_blue;
+        showIMG(bw_diff, "bw");
 
         if (debug){
             cout << "Non-zero = " << countNonZero(bw_diff) << endl;
 
             Mat debugger;
+            Mat bw_diff_hsv;
+            gray2HSV(bw_diff, bw_diff_hsv);
+
             vconcat(early_player, later_player, debugger);
             vconcat(debugger, diff_player, debugger);
+            vconcat(debugger, bw_diff_hsv, debugger);
 
-            showIMG(debugger, "debuggeR");
+
+            showHSV(debugger, "debugger");
         }
 
         //Threshold of movement determined by average testing via movement_debugger.sh
