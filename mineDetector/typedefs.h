@@ -9,11 +9,13 @@ using namespace std;
 typedef vector<cv::KeyPoint> keyvect;
 typedef map<float,KeyPoint> keymap;
 
-#define DEBUGIMG true
+
+#define DEBUGIMG false
 
 // Screen below
 //#define HULK_Y 1100
 //#define HULK_X 600
+
 #define HULK_Y 10
 #define HULK_X 1200
 

@@ -1,6 +1,7 @@
 #!/bin/bash
 
-mine_bin="../mineDetector-build/mineDetector"
+#mine_bin="../mineDetector-build/mineDetector"
+mine_bin="./mineDetector"
 window="RuneScape"
 
 # position
