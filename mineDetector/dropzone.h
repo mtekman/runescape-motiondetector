@@ -3,6 +3,9 @@
 
 //#define DEBUG
 
+
+#define STATIC_DIR "static_imgs/"
+
 #define ORE_TYPE "ore"
 #define DROP_TYPE "drop"
 #define PICK_TYPE "pick"
@@ -102,14 +105,14 @@ private:
         }
         return INVALID;
     }
-
-
 };
+
+
 
 // Need to fix this, am using the same tempate twice
 Mat DropZone::drop_template[DROP_PLATE_NUM] =\
- {imread("drop_template.jpg"),
-  imread("drop_template2.jpg")};
+ {imread(STATIC_DIR "drop_template.jpg"),
+  imread(STATIC_DIR "drop_template2.jpg")};
 
 Point DropZone::drop_offset_xy = Point(
             DropZone::drop_template[0].cols/2,
@@ -118,10 +121,10 @@ Point DropZone::drop_offset_xy = Point(
 
 
 Mat DropZone::ore_template[ORE_PLATE_NUM] =\
-{imread("ore_template.jpg"),
- imread("ore_template2.jpg"),
- imread("ore_template_sub1.jpg"),
- imread("ore_template_sub2.jpg")};
+{imread(STATIC_DIR "ore_template.jpg"),
+ imread(STATIC_DIR "ore_template2.jpg"),
+ imread(STATIC_DIR "ore_template_sub1.jpg"),
+ imread(STATIC_DIR "ore_template_sub2.jpg")};
 
 Point DropZone::ore_offset_xy = Point(
             DropZone::ore_template[0].cols/2,
@@ -129,7 +132,7 @@ Point DropZone::ore_offset_xy = Point(
 
 
 Mat DropZone::pick_template =\
-        imread("pick_template.jpg");
+        imread(STATIC_DIR "pick_template.jpg");
 
 
 Point DropZone::pick_offset_xy = Point(
