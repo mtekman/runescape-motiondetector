@@ -1,3 +1,11 @@
+### This repo has migrated to GitLab
+https://gitlab.com/mtekman/runescape-motiondetector
+###### (The copy here is archived. Please see the above link for the latest developments)
+
+********
+
+
+
 Script to automate runescape levelling using xte framework
 
 
